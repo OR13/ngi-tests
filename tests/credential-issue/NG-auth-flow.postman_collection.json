@@ -1,0 +1,3450 @@
+{
+	"info": {
+		"_postman_id": "b64f4dba-3b2e-49d8-aa60-7f44628053bf",
+		"name": "NGI auth flow",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "pre auth",
+			"item": [
+				{
+					"name": "Get Pre auth Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Token requests are expected to return a `200 Success` response code. Any",
+									"// other response code should trigger a failure.",
+									"pm.test(\"must return `200 Success` status\", function () {",
+									"    pm.response.to.have.status(200);",
+									"})",
+									"",
+									"pm.collectionVariables.set(\"pre_auth_code\", pm.response.text())",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{pre_auth_endpoint}}?pin={{pin}}&type={{type}}&user_id={{user}}",
+							"host": [
+								"{{pre_auth_endpoint}}"
+							],
+							"query": [
+								{
+									"key": "pin",
+									"value": "{{pin}}"
+								},
+								{
+									"key": "type",
+									"value": "{{type}}"
+								},
+								{
+									"key": "user_id",
+									"value": "{{user}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "E2E tests",
+			"item": [
+				{
+					"name": "get VC",
+					"item": [
+						{
+							"name": "invalid type",
+							"item": [
+								{
+									"name": "Get Pre auth Token With PIN",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"// Token requests are expected to return a `200 Success` response code. Any",
+													"// other response code should trigger a failure.",
+													"pm.test(\"must return `200 Success` status\", function () {",
+													"    pm.response.to.have.status(200);",
+													"})",
+													"",
+													"pm.collectionVariables.set(\"pre_auth_code\", pm.response.text())",
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{pre_auth_endpoint}}?pin={{pin}}&type={{type}}&user_id={{user}}",
+											"host": [
+												"{{pre_auth_endpoint}}"
+											],
+											"query": [
+												{
+													"key": "pin",
+													"value": "{{pin}}"
+												},
+												{
+													"key": "type",
+													"value": "{{type}}"
+												},
+												{
+													"key": "user_id",
+													"value": "{{user}}"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "obtain token",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Status code is 200\", function () {",
+													"    pm.response.to.have.status(200);",
+													"});",
+													"",
+													"resp = pm.response.json()",
+													"",
+													"pm.collectionVariables.set(\"access_token\", resp.access_token)"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"protocolProfileBehavior": {
+										"disabledSystemHeaders": {
+											"user-agent": true
+										}
+									},
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/x-www-form-urlencoded",
+												"type": "default"
+											}
+										],
+										"url": {
+											"raw": "{{token_endpoint}}?grant_type=urn:ietf:params:oauth:grant-type:pre-authorized_code&pre-authorized_code={{pre_auth_code}}&pin={{pin}}",
+											"host": [
+												"{{token_endpoint}}"
+											],
+											"query": [
+												{
+													"key": "grant_type",
+													"value": "urn:ietf:params:oauth:grant-type:pre-authorized_code"
+												},
+												{
+													"key": "pre-authorized_code",
+													"value": "{{pre_auth_code}}"
+												},
+												{
+													"key": "pin",
+													"value": "{{pin}}"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "unsupported type",
+									"event": [
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													"console.log(\"Get VC - unsupported type\")",
+													"",
+													"require(\"crypto-js\")",
+													"//postman-util-lib",
+													"eval(pm.globals.get('pmlib_code'));",
+													"",
+													"var jwtExpireTimeSec =  parseInt(pm.variables.get(\"jwt_exp_sec\"));",
+													"var nonce =  Math.floor(Math.random() *1000000).toString(36);",
+													"const currentTimeSec =  Math.floor(Date.now() / 1000);",
+													"",
+													"function base64url(source) {",
+													"    // Encode in classical base64",
+													"    encodedSource = CryptoJS.enc.Base64.stringify(source);",
+													"",
+													"    // Remove padding equal characters",
+													"    encodedSource = encodedSource.replace(/=+$/, '');",
+													"",
+													"    // Replace characters according to base64url specifications",
+													"    encodedSource = encodedSource.replace(/\\+/g, '-');",
+													"    encodedSource = encodedSource.replace(/\\//g, '_');",
+													"",
+													"    return encodedSource;",
+													"}",
+													"",
+													"function decodeBase64(src) {",
+													"    arr = CryptoJS.enc.Base64.parse(src)",
+													"    return CryptoJS.enc.Utf8.stringify(arr)",
+													"}",
+													"",
+													"function addIAT(data) {",
+													"    var iat = currentTimeSec - 100;",
+													"    data.iat = iat;",
+													"    return data;",
+													"}",
+													"",
+													"function addNonce(data, nonce) {",
+													"    data.jti = nonce;",
+													"    return data;",
+													"}",
+													"",
+													"function addExpTime(data, exp) {",
+													"    data.exp = currentTimeSec + exp;",
+													"    return data;",
+													"}",
+													"",
+													"function addKid(data,jwkPub) {",
+													"    data.kid = \"did:jwk:\" + base64url(CryptoJS.enc.Utf8.parse(JSON.stringify(jwkPub)));",
+													"    return data;",
+													"}",
+													"",
+													"var header = {",
+													"    \"alg\": \"ES256\",",
+													"    \"typ\": \"JWT\"",
+													"};",
+													"",
+													"var aud = pm.variables.get(\"issuer_uri\")",
+													"",
+													"var jwtPayload = {",
+													"    \"aud\": aud",
+													"};",
+													"",
+													"const privKey = pmlib.rs.KEYUTIL.getKey(decodeBase64(pm.variables.get(\"rs_priv_key\")))",
+													"const pubKey = pmlib.rs.KEYUTIL.getKey(decodeBase64(pm.variables.get(\"rs_pub_key\")))",
+													"",
+													"// decode PEM to object",
+													"const jwk = pmlib.rs.KEYUTIL.getJWK(privKey);",
+													"const jwkPub = pmlib.rs.KEYUTIL.getJWK(pubKey);",
+													"",
+													"//update header",
+													"addKid(header, jwkPub)",
+													"",
+													"//update payload",
+													"addIAT(jwtPayload);",
+													"addNonce(jwtPayload, nonce);",
+													"addExpTime(jwtPayload, jwtExpireTimeSec)",
+													"jwtPayload.iss = header.kid",
+													"",
+													"//const jws = pmlib.jwtSign(jwk, jwtPayload, header, jwtExpireTimeSec, \"ES256\");",
+													"",
+													"const jws = pmlib.rs.jws.JWS.sign(header.alg, header, jwtPayload, privKey);",
+													"",
+													"pm.variables.set(\"jwt_pop\", jws);",
+													""
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Status code is 400\", function () {",
+													"    pm.response.to.have.status(400);",
+													"});",
+													"",
+													"pm.test(\"Error response - unsupported type\", function () {",
+													"    var jsonData = pm.response.json();",
+													"    pm.expect(jsonData.error).to.eql(\"unsupported_type\")",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"protocolProfileBehavior": {
+										"disabledSystemHeaders": {}
+									},
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{access_token}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"type\": \"unknown\",\n    \"format\": \"jwt_vc\",\n    \"proof\": {\"proof_type\": \"jwt\", \"jwt\": \"{{jwt_pop}}\"}\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{resource_endpoint}}",
+											"host": [
+												"{{resource_endpoint}}"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "missing type",
+									"event": [
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													"console.log(\"Get VC - missing type parameter\")",
+													"",
+													"require(\"crypto-js\")",
+													"//postman-util-lib",
+													"eval(pm.globals.get('pmlib_code'));",
+													"",
+													"var jwtExpireTimeSec =  parseInt(pm.variables.get(\"jwt_exp_sec\"));",
+													"var nonce =  Math.floor(Math.random() *1000000).toString(36);",
+													"const currentTimeSec =  Math.floor(Date.now() / 1000);",
+													"",
+													"function base64url(source) {",
+													"    // Encode in classical base64",
+													"    encodedSource = CryptoJS.enc.Base64.stringify(source);",
+													"",
+													"    // Remove padding equal characters",
+													"    encodedSource = encodedSource.replace(/=+$/, '');",
+													"",
+													"    // Replace characters according to base64url specifications",
+													"    encodedSource = encodedSource.replace(/\\+/g, '-');",
+													"    encodedSource = encodedSource.replace(/\\//g, '_');",
+													"",
+													"    return encodedSource;",
+													"}",
+													"",
+													"function decodeBase64(src) {",
+													"    arr = CryptoJS.enc.Base64.parse(src)",
+													"    return CryptoJS.enc.Utf8.stringify(arr)",
+													"}",
+													"",
+													"function addIAT(data) {",
+													"    var iat = currentTimeSec - 100;",
+													"    data.iat = iat;",
+													"    return data;",
+													"}",
+													"",
+													"function addNonce(data, nonce) {",
+													"    data.jti = nonce;",
+													"    return data;",
+													"}",
+													"",
+													"function addExpTime(data, exp) {",
+													"    data.exp = currentTimeSec + exp;",
+													"    return data;",
+													"}",
+													"",
+													"function addKid(data,jwkPub) {",
+													"    data.kid = \"did:jwk:\" + base64url(CryptoJS.enc.Utf8.parse(JSON.stringify(jwkPub)));",
+													"    return data;",
+													"}",
+													"",
+													"var header = {",
+													"    \"alg\": \"ES256\",",
+													"    \"typ\": \"JWT\"",
+													"};",
+													"",
+													"var aud = pm.variables.get(\"issuer_uri\")",
+													"",
+													"var jwtPayload = {",
+													"    \"aud\": aud",
+													"};",
+													"",
+													"const privKey = pmlib.rs.KEYUTIL.getKey(decodeBase64(pm.variables.get(\"rs_priv_key\")))",
+													"const pubKey = pmlib.rs.KEYUTIL.getKey(decodeBase64(pm.variables.get(\"rs_pub_key\")))",
+													"",
+													"// decode PEM to object",
+													"const jwk = pmlib.rs.KEYUTIL.getJWK(privKey);",
+													"const jwkPub = pmlib.rs.KEYUTIL.getJWK(pubKey);",
+													"",
+													"//update header",
+													"addKid(header, jwkPub)",
+													"",
+													"//update payload",
+													"addIAT(jwtPayload);",
+													"addNonce(jwtPayload, nonce);",
+													"addExpTime(jwtPayload, jwtExpireTimeSec)",
+													"jwtPayload.iss = header.kid",
+													"",
+													"//const jws = pmlib.jwtSign(jwk, jwtPayload, header, jwtExpireTimeSec, \"ES256\");",
+													"",
+													"const jws = pmlib.rs.jws.JWS.sign(header.alg, header, jwtPayload, privKey);",
+													"",
+													"pm.variables.set(\"jwt_pop\", jws);",
+													""
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Status code is 400\", function () {",
+													"    pm.response.to.have.status(400);",
+													"});",
+													"",
+													"pm.test(\"Error response - invalid request\", function () {",
+													"    var jsonData = pm.response.json();",
+													"    pm.expect(jsonData.error).to.eql(\"invalid_request\")",
+													"});",
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"protocolProfileBehavior": {
+										"disabledSystemHeaders": {}
+									},
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{access_token}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"format\": \"jwt_vc\",\n    \"proof\": {\"proof_type\": \"jwt\", \"jwt\": \"{{jwt_pop}}\"}\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{resource_endpoint}}",
+											"host": [
+												"{{resource_endpoint}}"
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "invalid token",
+							"item": [
+								{
+									"name": "Get Pre auth Token With PIN",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"// Token requests are expected to return a `200 Success` response code. Any",
+													"// other response code should trigger a failure.",
+													"pm.test(\"must return `200 Success` status\", function () {",
+													"    pm.response.to.have.status(200);",
+													"})",
+													"",
+													"pm.collectionVariables.set(\"pre_auth_code\", pm.response.text())",
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{pre_auth_endpoint}}?pin={{pin}}&type={{type}}&user_id={{user}}",
+											"host": [
+												"{{pre_auth_endpoint}}"
+											],
+											"query": [
+												{
+													"key": "pin",
+													"value": "{{pin}}"
+												},
+												{
+													"key": "type",
+													"value": "{{type}}"
+												},
+												{
+													"key": "user_id",
+													"value": "{{user}}"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "obtain token",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Status code is 200\", function () {",
+													"    pm.response.to.have.status(200);",
+													"});",
+													"",
+													"resp = pm.response.json()",
+													"",
+													"pm.collectionVariables.set(\"access_token\", resp.access_token)"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"protocolProfileBehavior": {
+										"disabledSystemHeaders": {
+											"user-agent": true
+										}
+									},
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/x-www-form-urlencoded",
+												"type": "default"
+											}
+										],
+										"url": {
+											"raw": "{{token_endpoint}}?grant_type=urn:ietf:params:oauth:grant-type:pre-authorized_code&pre-authorized_code={{pre_auth_code}}&pin={{pin}}",
+											"host": [
+												"{{token_endpoint}}"
+											],
+											"query": [
+												{
+													"key": "grant_type",
+													"value": "urn:ietf:params:oauth:grant-type:pre-authorized_code"
+												},
+												{
+													"key": "pre-authorized_code",
+													"value": "{{pre_auth_code}}"
+												},
+												{
+													"key": "pin",
+													"value": "{{pin}}"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "invalid token",
+									"event": [
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													"console.log(\"Get VC - invalid token\")",
+													""
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Status code is 400\", function () {",
+													"    pm.response.to.have.status(400);",
+													"});",
+													"",
+													"pm.test(\"Error response - invalid token\", function () {",
+													"    var jsonData = pm.response.json();",
+													"    pm.expect(jsonData.error).to.eql(\"invalid_token\")",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"protocolProfileBehavior": {
+										"disabledSystemHeaders": {}
+									},
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "invalid_token",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"type\": \"unknown\",\n    \"format\": \"jwt_vc\",\n    \"proof\": {\"proof_type\": \"jwt\", \"jwt\": \"{{jwt_pop}}\"}\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{resource_endpoint}}",
+											"host": [
+												"{{resource_endpoint}}"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "missing bearer token - no auth",
+									"event": [
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													"console.log(\"Get VC - No Auth\")",
+													""
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Status code is 401\", function () {",
+													"    pm.response.to.have.status(401);",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"protocolProfileBehavior": {
+										"disabledSystemHeaders": {}
+									},
+									"request": {
+										"auth": {
+											"type": "noauth"
+										},
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"type\": \"{{type}}\",\n    \"format\": \"jwt_vc\",\n    \"proof\": {\"proof_type\": \"jwt\", \"jwt\": \"{{jwt_pop}}\"}\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{resource_endpoint}}",
+											"host": [
+												"{{resource_endpoint}}"
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "invalid format",
+							"item": [
+								{
+									"name": "Get Pre auth Token With PIN",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"// Token requests are expected to return a `200 Success` response code. Any",
+													"// other response code should trigger a failure.",
+													"pm.test(\"must return `200 Success` status\", function () {",
+													"    pm.response.to.have.status(200);",
+													"})",
+													"",
+													"pm.collectionVariables.set(\"pre_auth_code\", pm.response.text())",
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{pre_auth_endpoint}}?pin={{pin}}&type={{type}}&user_id={{user}}",
+											"host": [
+												"{{pre_auth_endpoint}}"
+											],
+											"query": [
+												{
+													"key": "pin",
+													"value": "{{pin}}"
+												},
+												{
+													"key": "type",
+													"value": "{{type}}"
+												},
+												{
+													"key": "user_id",
+													"value": "{{user}}"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "obtain token",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Status code is 200\", function () {",
+													"    pm.response.to.have.status(200);",
+													"});",
+													"",
+													"resp = pm.response.json()",
+													"",
+													"pm.collectionVariables.set(\"access_token\", resp.access_token)"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"protocolProfileBehavior": {
+										"disabledSystemHeaders": {
+											"user-agent": true
+										}
+									},
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/x-www-form-urlencoded",
+												"type": "default"
+											}
+										],
+										"url": {
+											"raw": "{{token_endpoint}}?grant_type=urn:ietf:params:oauth:grant-type:pre-authorized_code&pre-authorized_code={{pre_auth_code}}&pin={{pin}}",
+											"host": [
+												"{{token_endpoint}}"
+											],
+											"query": [
+												{
+													"key": "grant_type",
+													"value": "urn:ietf:params:oauth:grant-type:pre-authorized_code"
+												},
+												{
+													"key": "pre-authorized_code",
+													"value": "{{pre_auth_code}}"
+												},
+												{
+													"key": "pin",
+													"value": "{{pin}}"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "get vc - unsupported format",
+									"event": [
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													"console.log(\"Get VC - unsupported format\")",
+													"",
+													"require(\"crypto-js\")",
+													"//postman-util-lib",
+													"eval(pm.globals.get('pmlib_code'));",
+													"",
+													"var jwtExpireTimeSec =  parseInt(pm.variables.get(\"jwt_exp_sec\"));",
+													"var nonce =  Math.floor(Math.random() *1000000).toString(36);",
+													"const currentTimeSec =  Math.floor(Date.now() / 1000);",
+													"",
+													"function base64url(source) {",
+													"    // Encode in classical base64",
+													"    encodedSource = CryptoJS.enc.Base64.stringify(source);",
+													"",
+													"    // Remove padding equal characters",
+													"    encodedSource = encodedSource.replace(/=+$/, '');",
+													"",
+													"    // Replace characters according to base64url specifications",
+													"    encodedSource = encodedSource.replace(/\\+/g, '-');",
+													"    encodedSource = encodedSource.replace(/\\//g, '_');",
+													"",
+													"    return encodedSource;",
+													"}",
+													"",
+													"function decodeBase64(src) {",
+													"    arr = CryptoJS.enc.Base64.parse(src)",
+													"    return CryptoJS.enc.Utf8.stringify(arr)",
+													"}",
+													"",
+													"function addIAT(data) {",
+													"    var iat = currentTimeSec - 100;",
+													"    data.iat = iat;",
+													"    return data;",
+													"}",
+													"",
+													"function addNonce(data, nonce) {",
+													"    data.jti = nonce;",
+													"    return data;",
+													"}",
+													"",
+													"function addExpTime(data, exp) {",
+													"    data.exp = currentTimeSec + exp;",
+													"    return data;",
+													"}",
+													"",
+													"function addKid(data,jwkPub) {",
+													"    data.kid = \"did:jwk:\" + base64url(CryptoJS.enc.Utf8.parse(JSON.stringify(jwkPub)));",
+													"    return data;",
+													"}",
+													"",
+													"var header = {",
+													"    \"alg\": \"ES256\",",
+													"    \"typ\": \"JWT\"",
+													"};",
+													"",
+													"var aud = pm.variables.get(\"issuer_uri\")",
+													"",
+													"var jwtPayload = {",
+													"    \"aud\": aud",
+													"};",
+													"",
+													"const privKey = pmlib.rs.KEYUTIL.getKey(decodeBase64(pm.variables.get(\"rs_priv_key\")))",
+													"const pubKey = pmlib.rs.KEYUTIL.getKey(decodeBase64(pm.variables.get(\"rs_pub_key\")))",
+													"",
+													"// decode PEM to object",
+													"const jwk = pmlib.rs.KEYUTIL.getJWK(privKey);",
+													"const jwkPub = pmlib.rs.KEYUTIL.getJWK(pubKey);",
+													"",
+													"//update header",
+													"addKid(header, jwkPub)",
+													"",
+													"//update payload",
+													"addIAT(jwtPayload);",
+													"addNonce(jwtPayload, nonce);",
+													"addExpTime(jwtPayload, jwtExpireTimeSec)",
+													"jwtPayload.iss = header.kid",
+													"",
+													"//const jws = pmlib.jwtSign(jwk, jwtPayload, header, jwtExpireTimeSec, \"ES256\");",
+													"",
+													"const jws = pmlib.rs.jws.JWS.sign(header.alg, header, jwtPayload, privKey);",
+													"",
+													"pm.variables.set(\"jwt_pop\", jws);",
+													""
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Status code is 400\", function () {",
+													"    pm.response.to.have.status(400);",
+													"});",
+													"",
+													"pm.test(\"Error response - unsupported format\", function () {",
+													"    var jsonData = pm.response.json();",
+													"    pm.expect(jsonData.error).to.eql(\"unsupported_format\")",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"protocolProfileBehavior": {
+										"disabledSystemHeaders": {}
+									},
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{access_token}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"type\": \"{{type}}\",\n    \"format\": \"unknown\",\n    \"proof\": {\"proof_type\": \"jwt\", \"jwt\": \"{{jwt_pop}}\"}\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{resource_endpoint}}",
+											"host": [
+												"{{resource_endpoint}}"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "get vc - missing format",
+									"event": [
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													"console.log(\"Get VC - missing format parameter\")",
+													"",
+													"require(\"crypto-js\")",
+													"//postman-util-lib",
+													"eval(pm.globals.get('pmlib_code'));",
+													"",
+													"var jwtExpireTimeSec =  parseInt(pm.variables.get(\"jwt_exp_sec\"));",
+													"var nonce =  Math.floor(Math.random() *1000000).toString(36);",
+													"const currentTimeSec =  Math.floor(Date.now() / 1000);",
+													"",
+													"function base64url(source) {",
+													"    // Encode in classical base64",
+													"    encodedSource = CryptoJS.enc.Base64.stringify(source);",
+													"",
+													"    // Remove padding equal characters",
+													"    encodedSource = encodedSource.replace(/=+$/, '');",
+													"",
+													"    // Replace characters according to base64url specifications",
+													"    encodedSource = encodedSource.replace(/\\+/g, '-');",
+													"    encodedSource = encodedSource.replace(/\\//g, '_');",
+													"",
+													"    return encodedSource;",
+													"}",
+													"",
+													"function decodeBase64(src) {",
+													"    arr = CryptoJS.enc.Base64.parse(src)",
+													"    return CryptoJS.enc.Utf8.stringify(arr)",
+													"}",
+													"",
+													"function addIAT(data) {",
+													"    var iat = currentTimeSec - 100;",
+													"    data.iat = iat;",
+													"    return data;",
+													"}",
+													"",
+													"function addNonce(data, nonce) {",
+													"    data.jti = nonce;",
+													"    return data;",
+													"}",
+													"",
+													"function addExpTime(data, exp) {",
+													"    data.exp = currentTimeSec + exp;",
+													"    return data;",
+													"}",
+													"",
+													"function addKid(data,jwkPub) {",
+													"    data.kid = \"did:jwk:\" + base64url(CryptoJS.enc.Utf8.parse(JSON.stringify(jwkPub)));",
+													"    return data;",
+													"}",
+													"",
+													"var header = {",
+													"    \"alg\": \"ES256\",",
+													"    \"typ\": \"JWT\"",
+													"};",
+													"",
+													"var aud = pm.variables.get(\"issuer_uri\")",
+													"",
+													"var jwtPayload = {",
+													"    \"aud\": aud",
+													"};",
+													"",
+													"const privKey = pmlib.rs.KEYUTIL.getKey(decodeBase64(pm.variables.get(\"rs_priv_key\")))",
+													"const pubKey = pmlib.rs.KEYUTIL.getKey(decodeBase64(pm.variables.get(\"rs_pub_key\")))",
+													"",
+													"// decode PEM to object",
+													"const jwk = pmlib.rs.KEYUTIL.getJWK(privKey);",
+													"const jwkPub = pmlib.rs.KEYUTIL.getJWK(pubKey);",
+													"",
+													"//update header",
+													"addKid(header, jwkPub)",
+													"",
+													"//update payload",
+													"addIAT(jwtPayload);",
+													"addNonce(jwtPayload, nonce);",
+													"addExpTime(jwtPayload, jwtExpireTimeSec)",
+													"jwtPayload.iss = header.kid",
+													"",
+													"//const jws = pmlib.jwtSign(jwk, jwtPayload, header, jwtExpireTimeSec, \"ES256\");",
+													"",
+													"const jws = pmlib.rs.jws.JWS.sign(header.alg, header, jwtPayload, privKey);",
+													"",
+													"pm.variables.set(\"jwt_pop\", jws);",
+													""
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Status code is 400\", function () {",
+													"    pm.response.to.have.status(400);",
+													"});",
+													"",
+													"pm.test(\"Error response - invalid request\", function () {",
+													"    var jsonData = pm.response.json();",
+													"    pm.expect(jsonData.error).to.eql(\"invalid_request\")",
+													"});",
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"protocolProfileBehavior": {
+										"disabledSystemHeaders": {}
+									},
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{access_token}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"type\": \"{{type}}\",\n    \"proof\": {\"proof_type\": \"jwt\", \"jwt\": \"{{jwt_pop}}\"}\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{resource_endpoint}}",
+											"host": [
+												"{{resource_endpoint}}"
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "invalid proof",
+							"item": [
+								{
+									"name": "Get Pre auth Token With PIN",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"// Token requests are expected to return a `200 Success` response code. Any",
+													"// other response code should trigger a failure.",
+													"pm.test(\"must return `200 Success` status\", function () {",
+													"    pm.response.to.have.status(200);",
+													"})",
+													"",
+													"pm.collectionVariables.set(\"pre_auth_code\", pm.response.text())",
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{pre_auth_endpoint}}?pin={{pin}}&type={{type}}&user_id={{user}}",
+											"host": [
+												"{{pre_auth_endpoint}}"
+											],
+											"query": [
+												{
+													"key": "pin",
+													"value": "{{pin}}"
+												},
+												{
+													"key": "type",
+													"value": "{{type}}"
+												},
+												{
+													"key": "user_id",
+													"value": "{{user}}"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "obtain token",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Status code is 200\", function () {",
+													"    pm.response.to.have.status(200);",
+													"});",
+													"",
+													"resp = pm.response.json()",
+													"",
+													"pm.collectionVariables.set(\"access_token\", resp.access_token)"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"protocolProfileBehavior": {
+										"disabledSystemHeaders": {
+											"user-agent": true
+										}
+									},
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/x-www-form-urlencoded",
+												"type": "default"
+											}
+										],
+										"url": {
+											"raw": "{{token_endpoint}}?grant_type=urn:ietf:params:oauth:grant-type:pre-authorized_code&pre-authorized_code={{pre_auth_code}}&pin={{pin}}",
+											"host": [
+												"{{token_endpoint}}"
+											],
+											"query": [
+												{
+													"key": "grant_type",
+													"value": "urn:ietf:params:oauth:grant-type:pre-authorized_code"
+												},
+												{
+													"key": "pre-authorized_code",
+													"value": "{{pre_auth_code}}"
+												},
+												{
+													"key": "pin",
+													"value": "{{pin}}"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "missing proof",
+									"event": [
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													"require(\"crypto-js\")",
+													"//postman-util-lib",
+													"eval(pm.globals.get('pmlib_code'));",
+													"",
+													"console.log(\"Start obtain credential test\");",
+													"",
+													"var jwtExpireTimeSec =  parseInt(pm.variables.get(\"jwt_exp_sec\"));",
+													"var nonce =  Math.floor(Math.random() *1000000).toString(36);",
+													"const currentTimeSec =  Math.floor(Date.now() / 1000);",
+													"",
+													"function base64url(source) {",
+													"    // Encode in classical base64",
+													"    encodedSource = CryptoJS.enc.Base64.stringify(source);",
+													"",
+													"    // Remove padding equal characters",
+													"    encodedSource = encodedSource.replace(/=+$/, '');",
+													"",
+													"    // Replace characters according to base64url specifications",
+													"    encodedSource = encodedSource.replace(/\\+/g, '-');",
+													"    encodedSource = encodedSource.replace(/\\//g, '_');",
+													"",
+													"    return encodedSource;",
+													"}",
+													"",
+													"function decodeBase64(src) {",
+													"    arr = CryptoJS.enc.Base64.parse(src)",
+													"    return CryptoJS.enc.Utf8.stringify(arr)",
+													"}",
+													"",
+													"function addIAT(data) {",
+													"    var iat = currentTimeSec - 100;",
+													"    data.iat = iat;",
+													"    return data;",
+													"}",
+													"",
+													"function addNonce(data, nonce) {",
+													"    data.jti = nonce;",
+													"    return data;",
+													"}",
+													"",
+													"function addExpTime(data, exp) {",
+													"    data.exp = currentTimeSec + exp;",
+													"    return data;",
+													"}",
+													"",
+													"function addKid(data,jwkPub) {",
+													"    data.kid = \"did:jwk:\" + base64url(CryptoJS.enc.Utf8.parse(JSON.stringify(jwkPub)));",
+													"    return data;",
+													"}",
+													"",
+													"var header = {",
+													"    \"alg\": \"ES256\",",
+													"    \"typ\": \"JWT\"",
+													"};",
+													"",
+													"var aud = pm.variables.get(\"issuer_uri\")",
+													"",
+													"var jwtPayload = {",
+													"    \"aud\": aud",
+													"};",
+													"",
+													"const privKey = pmlib.rs.KEYUTIL.getKey(decodeBase64(pm.variables.get(\"rs_priv_key\")))",
+													"const pubKey = pmlib.rs.KEYUTIL.getKey(decodeBase64(pm.variables.get(\"rs_pub_key\")))",
+													"",
+													"console.log(\"pub key\" + pubKey)",
+													"// decode PEM to object",
+													"const jwk = pmlib.rs.KEYUTIL.getJWK(privKey);",
+													"const jwkPub = pmlib.rs.KEYUTIL.getJWK(pubKey);",
+													"",
+													"console.log(jwkPub)",
+													"",
+													"//update header",
+													"addKid(header, jwkPub)",
+													"",
+													"//update payload",
+													"addIAT(jwtPayload);",
+													"addNonce(jwtPayload, nonce);",
+													"addExpTime(jwtPayload, jwtExpireTimeSec)",
+													"jwtPayload.iss = header.kid",
+													"",
+													"//const jws = pmlib.jwtSign(jwk, jwtPayload, header, jwtExpireTimeSec, \"ES256\");",
+													"",
+													"const jws = pmlib.rs.jws.JWS.sign(header.alg, header, jwtPayload, privKey);",
+													"",
+													"console.log(\"Token signed\")",
+													"console.log(jws);",
+													"",
+													"pm.variables.set(\"jwt_pop\", jws);",
+													""
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Status code is 400\", function () {",
+													"    pm.response.to.have.status(400);",
+													"});",
+													"",
+													"pm.test(\"Error response - invalid request\", function () {",
+													"    var jsonData = pm.response.json();",
+													"    pm.expect(jsonData.error).to.eql(\"invalid_request\")",
+													"});",
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"protocolProfileBehavior": {
+										"disabledSystemHeaders": {}
+									},
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{access_token}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"type\": \"{{type}}\",\n    \"format\": \"jwt_vc\",\n    \"proof\": {\"proof_type\": \"jwt\", \"jwt\": \"\"}\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{resource_endpoint}}",
+											"host": [
+												"{{resource_endpoint}}"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "invalid PoP - invalid kid",
+									"event": [
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													"require(\"crypto-js\")",
+													"//postman-util-lib",
+													"eval(pm.globals.get('pmlib_code'));",
+													"",
+													"console.log(\"Get VC - invalid PoP , different PUB key\");",
+													"",
+													"var jwtExpireTimeSec =  parseInt(pm.variables.get(\"jwt_exp_sec\"));",
+													"var nonce =  Math.floor(Math.random() *1000000).toString(36);",
+													"const currentTimeSec =  Math.floor(Date.now() / 1000);",
+													"",
+													"function base64url(source) {",
+													"    // Encode in classical base64",
+													"    encodedSource = CryptoJS.enc.Base64.stringify(source);",
+													"",
+													"    // Remove padding equal characters",
+													"    encodedSource = encodedSource.replace(/=+$/, '');",
+													"",
+													"    // Replace characters according to base64url specifications",
+													"    encodedSource = encodedSource.replace(/\\+/g, '-');",
+													"    encodedSource = encodedSource.replace(/\\//g, '_');",
+													"",
+													"    return encodedSource;",
+													"}",
+													"",
+													"function decodeBase64(src) {",
+													"    arr = CryptoJS.enc.Base64.parse(src)",
+													"    return CryptoJS.enc.Utf8.stringify(arr)",
+													"}",
+													"",
+													"function addIAT(data) {",
+													"    var iat = currentTimeSec - 100;",
+													"    data.iat = iat;",
+													"    return data;",
+													"}",
+													"",
+													"function addNonce(data, nonce) {",
+													"    data.jti = nonce;",
+													"    return data;",
+													"}",
+													"",
+													"function addExpTime(data, exp) {",
+													"    data.exp = currentTimeSec + exp;",
+													"    return data;",
+													"}",
+													"",
+													"function addKid(data,jwkPub) {",
+													"    data.kid = \"did:jwk:\" + base64url(CryptoJS.enc.Utf8.parse(JSON.stringify(jwkPub)));",
+													"    return data;",
+													"}",
+													"",
+													"var header = {",
+													"    \"alg\": \"ES256\",",
+													"    \"typ\": \"JWT\"",
+													"};",
+													"",
+													"var aud = pm.variables.get(\"issuer_uri\")",
+													"",
+													"var jwtPayload = {",
+													"    \"aud\": aud",
+													"};",
+													"",
+													"const privKey = pmlib.rs.KEYUTIL.getKey(decodeBase64(pm.variables.get(\"rs_priv_key\")))",
+													"",
+													"//generate different key pair ",
+													"const differentEcKeypair = pmlib.rs.KEYUTIL.generateKeypair(\"EC\", \"secp256r1\")",
+													"var differentPubPem = pmlib.rs.KEYUTIL.getPEM(differentEcKeypair.pubKeyObj)",
+													"",
+													"const pubKey = pmlib.rs.KEYUTIL.getKey(differentPubPem)",
+													"",
+													"// decode PEM to object",
+													"const jwkPub = pmlib.rs.KEYUTIL.getJWK(pubKey);",
+													"",
+													"console.log(jwkPub)",
+													"",
+													"//update header",
+													"addKid(header, jwkPub)",
+													"",
+													"//update payload",
+													"addIAT(jwtPayload);",
+													"addNonce(jwtPayload, nonce);",
+													"addExpTime(jwtPayload, jwtExpireTimeSec)",
+													"jwtPayload.iss = header.kid",
+													"",
+													"//const jws = pmlib.jwtSign(jwk, jwtPayload, header, jwtExpireTimeSec, \"ES256\");",
+													"",
+													"const jws = pmlib.rs.jws.JWS.sign(header.alg, header, jwtPayload, privKey);",
+													"",
+													"console.log(\"Token signed\")",
+													"console.log(jws);",
+													"",
+													"pm.variables.set(\"jwt_pop\", jws);",
+													""
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Status code is 400\", function () {",
+													"    pm.response.to.have.status(400);",
+													"});",
+													"",
+													"pm.test(\"Error response - invalid request\", function () {",
+													"    var jsonData = pm.response.json();",
+													"    pm.expect(jsonData.error).to.eql(\"invalid_or_missing_proof\")",
+													"});",
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"protocolProfileBehavior": {
+										"disabledSystemHeaders": {}
+									},
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{access_token}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"type\": \"{{type}}\",\n    \"format\": \"jwt_vc\",\n    \"proof\": {\"proof_type\": \"jwt\", \"jwt\": \"{{jwt_pop}}\"}\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{resource_endpoint}}",
+											"host": [
+												"{{resource_endpoint}}"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "invalid PoP - missing kid",
+									"event": [
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													"require(\"crypto-js\")",
+													"//postman-util-lib",
+													"eval(pm.globals.get('pmlib_code'));",
+													"",
+													"console.log(\"Get VC - invalid PoP , different PUB key\");",
+													"",
+													"var jwtExpireTimeSec =  parseInt(pm.variables.get(\"jwt_exp_sec\"));",
+													"var nonce =  Math.floor(Math.random() *1000000).toString(36);",
+													"const currentTimeSec =  Math.floor(Date.now() / 1000);",
+													"",
+													"function base64url(source) {",
+													"    // Encode in classical base64",
+													"    encodedSource = CryptoJS.enc.Base64.stringify(source);",
+													"",
+													"    // Remove padding equal characters",
+													"    encodedSource = encodedSource.replace(/=+$/, '');",
+													"",
+													"    // Replace characters according to base64url specifications",
+													"    encodedSource = encodedSource.replace(/\\+/g, '-');",
+													"    encodedSource = encodedSource.replace(/\\//g, '_');",
+													"",
+													"    return encodedSource;",
+													"}",
+													"",
+													"function decodeBase64(src) {",
+													"    arr = CryptoJS.enc.Base64.parse(src)",
+													"    return CryptoJS.enc.Utf8.stringify(arr)",
+													"}",
+													"",
+													"function addIAT(data) {",
+													"    var iat = currentTimeSec - 100;",
+													"    data.iat = iat;",
+													"    return data;",
+													"}",
+													"",
+													"function addNonce(data, nonce) {",
+													"    data.jti = nonce;",
+													"    return data;",
+													"}",
+													"",
+													"function addExpTime(data, exp) {",
+													"    data.exp = currentTimeSec + exp;",
+													"    return data;",
+													"}",
+													"",
+													"function addKid(data,jwkPub) {",
+													"    data.kid = \"did:jwk:\" + base64url(CryptoJS.enc.Utf8.parse(JSON.stringify(jwkPub)));",
+													"    return data;",
+													"}",
+													"",
+													"var header = {",
+													"    \"alg\": \"ES256\",",
+													"    \"typ\": \"JWT\"",
+													"};",
+													"",
+													"var aud = pm.variables.get(\"issuer_uri\")",
+													"",
+													"var jwtPayload = {",
+													"    \"aud\": aud",
+													"};",
+													"",
+													"const privKey = pmlib.rs.KEYUTIL.getKey(decodeBase64(pm.variables.get(\"rs_priv_key\")))",
+													"",
+													"//update payload",
+													"addIAT(jwtPayload);",
+													"addNonce(jwtPayload, nonce);",
+													"addExpTime(jwtPayload, jwtExpireTimeSec)",
+													"jwtPayload.iss = header.kid",
+													"",
+													"//const jws = pmlib.jwtSign(jwk, jwtPayload, header, jwtExpireTimeSec, \"ES256\");",
+													"",
+													"const jws = pmlib.rs.jws.JWS.sign(header.alg, header, jwtPayload, privKey);",
+													"",
+													"console.log(\"Token signed\")",
+													"console.log(jws);",
+													"",
+													"pm.variables.set(\"jwt_pop\", jws);",
+													""
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Status code is 400\", function () {",
+													"    pm.response.to.have.status(400);",
+													"});",
+													"",
+													"pm.test(\"Error response - invalid request\", function () {",
+													"    var jsonData = pm.response.json();",
+													"    pm.expect(jsonData.error).to.eql(\"invalid_or_missing_proof\")",
+													"});",
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"protocolProfileBehavior": {
+										"disabledSystemHeaders": {}
+									},
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{access_token}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"type\": \"{{type}}\",\n    \"format\": \"jwt_vc\",\n    \"proof\": {\"proof_type\": \"jwt\", \"jwt\": \"{{jwt_pop}}\"}\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{resource_endpoint}}",
+											"host": [
+												"{{resource_endpoint}}"
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "obtain VC success",
+							"item": [
+								{
+									"name": "Get Pre auth Token With PIN",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"// Token requests are expected to return a `200 Success` response code. Any",
+													"// other response code should trigger a failure.",
+													"pm.test(\"must return `200 Success` status\", function () {",
+													"    pm.response.to.have.status(200);",
+													"})",
+													"",
+													"pm.collectionVariables.set(\"pre_auth_code\", pm.response.text())",
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{pre_auth_endpoint}}?pin={{pin}}&type={{type}}&user_id={{user}}",
+											"host": [
+												"{{pre_auth_endpoint}}"
+											],
+											"query": [
+												{
+													"key": "pin",
+													"value": "{{pin}}"
+												},
+												{
+													"key": "type",
+													"value": "{{type}}"
+												},
+												{
+													"key": "user_id",
+													"value": "{{user}}"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "obtain token",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Status code is 200\", function () {",
+													"    pm.response.to.have.status(200);",
+													"});",
+													"",
+													"resp = pm.response.json()",
+													"",
+													"pm.collectionVariables.set(\"access_token\", resp.access_token)"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"protocolProfileBehavior": {
+										"disabledSystemHeaders": {
+											"user-agent": true
+										}
+									},
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/x-www-form-urlencoded",
+												"type": "default"
+											}
+										],
+										"url": {
+											"raw": "{{token_endpoint}}?grant_type=urn:ietf:params:oauth:grant-type:pre-authorized_code&pre-authorized_code={{pre_auth_code}}&pin={{pin}}",
+											"host": [
+												"{{token_endpoint}}"
+											],
+											"query": [
+												{
+													"key": "grant_type",
+													"value": "urn:ietf:params:oauth:grant-type:pre-authorized_code"
+												},
+												{
+													"key": "pre-authorized_code",
+													"value": "{{pre_auth_code}}"
+												},
+												{
+													"key": "pin",
+													"value": "{{pin}}"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "obtain VC tests",
+									"event": [
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													"require(\"crypto-js\")",
+													"//postman-util-lib",
+													"eval(pm.globals.get('pmlib_code'));",
+													"",
+													"console.log(\"Start get VC - check terms of use test\");",
+													"",
+													"var jwtExpireTimeSec =  parseInt(pm.variables.get(\"jwt_exp_sec\"));",
+													"var nonce =  Math.floor(Math.random() *1000000).toString(36);",
+													"const currentTimeSec =  Math.floor(Date.now() / 1000);",
+													"",
+													"function base64url(source) {",
+													"    // Encode in classical base64",
+													"    encodedSource = CryptoJS.enc.Base64.stringify(source);",
+													"",
+													"    // Remove padding equal characters",
+													"    encodedSource = encodedSource.replace(/=+$/, '');",
+													"",
+													"    // Replace characters according to base64url specifications",
+													"    encodedSource = encodedSource.replace(/\\+/g, '-');",
+													"    encodedSource = encodedSource.replace(/\\//g, '_');",
+													"",
+													"    return encodedSource;",
+													"}",
+													"",
+													"function decodeBase64(src) {",
+													"    arr = CryptoJS.enc.Base64.parse(src)",
+													"    return CryptoJS.enc.Utf8.stringify(arr)",
+													"}",
+													"",
+													"function addIAT(data) {",
+													"    var iat = currentTimeSec - 100;",
+													"    data.iat = iat;",
+													"    return data;",
+													"}",
+													"",
+													"function addNonce(data, nonce) {",
+													"    data.jti = nonce;",
+													"    return data;",
+													"}",
+													"",
+													"function addExpTime(data, exp) {",
+													"    data.exp = currentTimeSec + exp;",
+													"    return data;",
+													"}",
+													"",
+													"function addKid(data,jwkPub) {",
+													"    data.kid = \"did:jwk:\" + base64url(CryptoJS.enc.Utf8.parse(JSON.stringify(jwkPub)));",
+													"    return data;",
+													"}",
+													"",
+													"var header = {",
+													"    \"alg\": \"ES256\",",
+													"    \"typ\": \"JWT\"",
+													"};",
+													"",
+													"var aud = pm.variables.get(\"issuer_uri\")",
+													"",
+													"var jwtPayload = {",
+													"    \"aud\": aud",
+													"};",
+													"",
+													"const privKey = pmlib.rs.KEYUTIL.getKey(decodeBase64(pm.variables.get(\"rs_priv_key\")))",
+													"const pubKey = pmlib.rs.KEYUTIL.getKey(decodeBase64(pm.variables.get(\"rs_pub_key\")))",
+													"",
+													"console.log(\"pub key\" + pubKey)",
+													"// decode PEM to object",
+													"const jwk = pmlib.rs.KEYUTIL.getJWK(privKey);",
+													"const jwkPub = pmlib.rs.KEYUTIL.getJWK(pubKey);",
+													"",
+													"console.log(jwkPub)",
+													"",
+													"//update header",
+													"addKid(header, jwkPub)",
+													"",
+													"//update payload",
+													"addIAT(jwtPayload);",
+													"addNonce(jwtPayload, nonce);",
+													"addExpTime(jwtPayload, jwtExpireTimeSec)",
+													"jwtPayload.iss = header.kid",
+													"",
+													"//const jws = pmlib.jwtSign(jwk, jwtPayload, header, jwtExpireTimeSec, \"ES256\");",
+													"",
+													"const jws = pmlib.rs.jws.JWS.sign(header.alg, header, jwtPayload, privKey);",
+													"",
+													"console.log(\"Token signed\")",
+													"console.log(jws);",
+													"",
+													"pm.variables.set(\"jwt_pop\", jws);",
+													""
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Status code is 200\", function () {",
+													"    pm.response.to.have.status(200);",
+													"});",
+													"",
+													"var jsonData = pm.response.json();",
+													"",
+													"require(\"crypto-js\")",
+													"//postman-util-lib",
+													"eval(pm.globals.get('pmlib_code'));",
+													"",
+													"function base64url(source) {",
+													"    // Encode in classical base64",
+													"    encodedSource = CryptoJS.enc.Base64.stringify(source);",
+													"",
+													"    // Remove padding equal characters",
+													"    encodedSource = encodedSource.replace(/=+$/, '');",
+													"",
+													"    // Replace characters according to base64url specifications",
+													"    encodedSource = encodedSource.replace(/\\+/g, '-');",
+													"    encodedSource = encodedSource.replace(/\\//g, '_');",
+													"",
+													"    return encodedSource;",
+													"}",
+													"",
+													"function decodeBase64(src) {",
+													"    arr = CryptoJS.enc.Base64.parse(src)",
+													"    return CryptoJS.enc.Utf8.stringify(arr)",
+													"}",
+													"",
+													"const jwsParsed = pmlib.rs.jws.JWS.parse(jsonData.credential);",
+													"",
+													"pm.test(\"JWT is not empty\", function () {",
+													"    pm.expect(jwsParsed).is.not.empty",
+													"});",
+													"",
+													"console.log(\"Result\")",
+													"console.log(jwsParsed);",
+													"",
+													"const pubKey = pmlib.rs.KEYUTIL.getKey(decodeBase64(pm.variables.get(\"rs_pub_key\")))",
+													"const jwkPub = pmlib.rs.KEYUTIL.getJWK(pubKey);",
+													"",
+													"pm.test(\"JWT payload contain subject field\", function () {",
+													"    pm.expect(jwsParsed.payloadObj).to.have.property(\"sub\")",
+													"});",
+													"",
+													"pm.test(\"JWT payload - subject is correct\", function () {",
+													"    pm.expect(jwsParsed.payloadObj.sub).is.eql(\"did:jwk:\" +  base64url(CryptoJS.enc.Utf8.parse(JSON.stringify(jwkPub))))",
+													"});",
+													"",
+													"pm.test(\"JWT payload contain iss field\", function () {",
+													"    pm.expect(jwsParsed.payloadObj).to.have.property(\"iss\")",
+													"});",
+													"",
+													"pm.test(\"JWT payload - issuer is correct\", function () {",
+													"    const resEndpoint = pm.variables.get(\"resource_endpoint\")",
+													"    pm.expect(jwsParsed.payloadObj.iss).is.equal(resEndpoint.substring(0,resEndpoint.lastIndexOf(\"/\")))",
+													"});",
+													"",
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"protocolProfileBehavior": {
+										"disabledSystemHeaders": {}
+									},
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{access_token}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"type\": \"{{type}}\",\n    \"format\": \"jwt_vc\",\n    \"proof\": {\"proof_type\": \"jwt\", \"jwt\": \"{{jwt_pop}}\"}\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{resource_endpoint}}",
+											"host": [
+												"{{resource_endpoint}}"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "check terms of use",
+									"event": [
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													"require(\"crypto-js\")",
+													"//postman-util-lib",
+													"eval(pm.globals.get('pmlib_code'));",
+													"",
+													"console.log(\"Start get VC - check terms of use test\");",
+													"",
+													"var jwtExpireTimeSec =  parseInt(pm.variables.get(\"jwt_exp_sec\"));",
+													"var nonce =  Math.floor(Math.random() *1000000).toString(36);",
+													"const currentTimeSec =  Math.floor(Date.now() / 1000);",
+													"",
+													"function base64url(source) {",
+													"    // Encode in classical base64",
+													"    encodedSource = CryptoJS.enc.Base64.stringify(source);",
+													"",
+													"    // Remove padding equal characters",
+													"    encodedSource = encodedSource.replace(/=+$/, '');",
+													"",
+													"    // Replace characters according to base64url specifications",
+													"    encodedSource = encodedSource.replace(/\\+/g, '-');",
+													"    encodedSource = encodedSource.replace(/\\//g, '_');",
+													"",
+													"    return encodedSource;",
+													"}",
+													"",
+													"function decodeBase64(src) {",
+													"    arr = CryptoJS.enc.Base64.parse(src)",
+													"    return CryptoJS.enc.Utf8.stringify(arr)",
+													"}",
+													"",
+													"function addIAT(data) {",
+													"    var iat = currentTimeSec - 100;",
+													"    data.iat = iat;",
+													"    return data;",
+													"}",
+													"",
+													"function addNonce(data, nonce) {",
+													"    data.jti = nonce;",
+													"    return data;",
+													"}",
+													"",
+													"function addExpTime(data, exp) {",
+													"    data.exp = currentTimeSec + exp;",
+													"    return data;",
+													"}",
+													"",
+													"function addKid(data,jwkPub) {",
+													"    data.kid = \"did:jwk:\" + base64url(CryptoJS.enc.Utf8.parse(JSON.stringify(jwkPub)));",
+													"    return data;",
+													"}",
+													"",
+													"var header = {",
+													"    \"alg\": \"ES256\",",
+													"    \"typ\": \"JWT\"",
+													"};",
+													"",
+													"var aud = pm.variables.get(\"issuer_uri\")",
+													"",
+													"var jwtPayload = {",
+													"    \"aud\": aud",
+													"};",
+													"",
+													"const privKey = pmlib.rs.KEYUTIL.getKey(decodeBase64(pm.variables.get(\"rs_priv_key\")))",
+													"const pubKey = pmlib.rs.KEYUTIL.getKey(decodeBase64(pm.variables.get(\"rs_pub_key\")))",
+													"",
+													"console.log(\"pub key\" + pubKey)",
+													"// decode PEM to object",
+													"const jwk = pmlib.rs.KEYUTIL.getJWK(privKey);",
+													"const jwkPub = pmlib.rs.KEYUTIL.getJWK(pubKey);",
+													"",
+													"console.log(jwkPub)",
+													"",
+													"//update header",
+													"addKid(header, jwkPub)",
+													"",
+													"//update payload",
+													"addIAT(jwtPayload);",
+													"addNonce(jwtPayload, nonce);",
+													"addExpTime(jwtPayload, jwtExpireTimeSec)",
+													"jwtPayload.iss = header.kid",
+													"",
+													"//const jws = pmlib.jwtSign(jwk, jwtPayload, header, jwtExpireTimeSec, \"ES256\");",
+													"",
+													"const jws = pmlib.rs.jws.JWS.sign(header.alg, header, jwtPayload, privKey);",
+													"",
+													"console.log(\"Token signed\")",
+													"console.log(jws);",
+													"",
+													"pm.variables.set(\"jwt_pop\", jws);",
+													""
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Status code is 200\", function () {",
+													"    pm.response.to.have.status(200);",
+													"});",
+													"",
+													"",
+													"var jsonData = pm.response.json();",
+													"",
+													"require(\"crypto-js\")",
+													"//postman-util-lib",
+													"eval(pm.globals.get('pmlib_code'));",
+													"",
+													"const jwsParsed = pmlib.rs.jws.JWS.parse(jsonData.credential);",
+													"",
+													"pm.test(\"JWT payload contain termsOfUse\", function () {",
+													"    pm.expect(jwsParsed.payloadObj).to.have.property(\"termsOfUse\")",
+													"});",
+													"",
+													"pm.test(\"JWT payload - termsOfUse contain type\", function () {",
+													"    pm.expect(jwsParsed.payloadObj.termsOfUse).to.have.property(\"type\")",
+													"});",
+													"",
+													"pm.test(\"JWT payload - termsOfUse type is correct\", function () {",
+													"    const expectedToc = pm.collectionVariables.get(\"vc_credential_termsofuse_type\")",
+													"    pm.expect(jwsParsed.payloadObj.termsOfUse).is.eql(expectedToc)",
+													"});",
+													"",
+													"//TODO: add check trustScheme",
+													"",
+													"console.log(\"Result\")",
+													"console.log(jwsParsed);",
+													"",
+													"",
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"protocolProfileBehavior": {
+										"disabledSystemHeaders": {}
+									},
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{access_token}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"type\": \"{{type}}\",\n    \"format\": \"jwt_vc\",\n    \"proof\": {\"proof_type\": \"jwt\", \"jwt\": \"{{jwt_pop}}\"}\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{resource_endpoint}}",
+											"host": [
+												"{{resource_endpoint}}"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "check credential type",
+									"event": [
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													"require(\"crypto-js\")",
+													"//postman-util-lib",
+													"eval(pm.globals.get('pmlib_code'));",
+													"",
+													"console.log(\"Start get VC - check credential type test\");",
+													"",
+													"var jwtExpireTimeSec =  parseInt(pm.variables.get(\"jwt_exp_sec\"));",
+													"var nonce =  Math.floor(Math.random() *1000000).toString(36);",
+													"const currentTimeSec =  Math.floor(Date.now() / 1000);",
+													"",
+													"function base64url(source) {",
+													"    // Encode in classical base64",
+													"    encodedSource = CryptoJS.enc.Base64.stringify(source);",
+													"",
+													"    // Remove padding equal characters",
+													"    encodedSource = encodedSource.replace(/=+$/, '');",
+													"",
+													"    // Replace characters according to base64url specifications",
+													"    encodedSource = encodedSource.replace(/\\+/g, '-');",
+													"    encodedSource = encodedSource.replace(/\\//g, '_');",
+													"",
+													"    return encodedSource;",
+													"}",
+													"",
+													"function decodeBase64(src) {",
+													"    arr = CryptoJS.enc.Base64.parse(src)",
+													"    return CryptoJS.enc.Utf8.stringify(arr)",
+													"}",
+													"",
+													"function addIAT(data) {",
+													"    var iat = currentTimeSec - 100;",
+													"    data.iat = iat;",
+													"    return data;",
+													"}",
+													"",
+													"function addNonce(data, nonce) {",
+													"    data.jti = nonce;",
+													"    return data;",
+													"}",
+													"",
+													"function addExpTime(data, exp) {",
+													"    data.exp = currentTimeSec + exp;",
+													"    return data;",
+													"}",
+													"",
+													"function addKid(data,jwkPub) {",
+													"    data.kid = \"did:jwk:\" + base64url(CryptoJS.enc.Utf8.parse(JSON.stringify(jwkPub)));",
+													"    return data;",
+													"}",
+													"",
+													"var header = {",
+													"    \"alg\": \"ES256\",",
+													"    \"typ\": \"JWT\"",
+													"};",
+													"",
+													"var aud = pm.variables.get(\"issuer_uri\")",
+													"",
+													"var jwtPayload = {",
+													"    \"aud\": aud",
+													"};",
+													"",
+													"const privKey = pmlib.rs.KEYUTIL.getKey(decodeBase64(pm.variables.get(\"rs_priv_key\")))",
+													"const pubKey = pmlib.rs.KEYUTIL.getKey(decodeBase64(pm.variables.get(\"rs_pub_key\")))",
+													"",
+													"console.log(\"pub key\" + pubKey)",
+													"// decode PEM to object",
+													"const jwk = pmlib.rs.KEYUTIL.getJWK(privKey);",
+													"const jwkPub = pmlib.rs.KEYUTIL.getJWK(pubKey);",
+													"",
+													"console.log(jwkPub)",
+													"",
+													"//update header",
+													"addKid(header, jwkPub)",
+													"",
+													"//update payload",
+													"addIAT(jwtPayload);",
+													"addNonce(jwtPayload, nonce);",
+													"addExpTime(jwtPayload, jwtExpireTimeSec)",
+													"jwtPayload.iss = header.kid",
+													"",
+													"//const jws = pmlib.jwtSign(jwk, jwtPayload, header, jwtExpireTimeSec, \"ES256\");",
+													"",
+													"const jws = pmlib.rs.jws.JWS.sign(header.alg, header, jwtPayload, privKey);",
+													"",
+													"console.log(\"Token signed\")",
+													"console.log(jws);",
+													"",
+													"pm.variables.set(\"jwt_pop\", jws);",
+													""
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Status code is 200\", function () {",
+													"    pm.response.to.have.status(200);",
+													"});",
+													"",
+													"var jsonData = pm.response.json();",
+													"",
+													"//postman-util-lib",
+													"eval(pm.globals.get('pmlib_code'));",
+													"",
+													"const jwsParsed = pmlib.rs.jws.JWS.parse(jsonData.credential);",
+													"",
+													"pm.test(\"JWT payload contain vc field\", function () {",
+													"    pm.expect(jwsParsed.payloadObj).to.have.property(\"vc\")",
+													"});",
+													"",
+													"pm.test(\"JWT payload contain type field in vc section\", function () {",
+													"    pm.expect(jwsParsed.payloadObj.vc).to.have.property(\"type\")",
+													"});",
+													"",
+													"pm.test(\"Check that VC type is an array\", function () {",
+													"    pm.expect(jwsParsed.payloadObj.vc.type).is.be.an(\"array\")",
+													"});",
+													"",
+													"pm.test(\"Check VC type\", function () {",
+													"    pm.expect(jwsParsed.payloadObj.vc.type).to.include(\"VerifiableCredentials\");",
+													"    pm.expect(jwsParsed.payloadObj.vc.type).to.include(\"Passport test\");",
+													"});",
+													"",
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"protocolProfileBehavior": {
+										"disabledSystemHeaders": {}
+									},
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{access_token}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"type\": \"{{type}}\",\n    \"format\": \"jwt_vc\",\n    \"proof\": {\"proof_type\": \"jwt\", \"jwt\": \"{{jwt_pop}}\"}\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{resource_endpoint}}",
+											"host": [
+												"{{resource_endpoint}}"
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						}
+					]
+				},
+				{
+					"name": "obtain access token",
+					"item": [
+						{
+							"name": "obtain token With PIN",
+							"item": [
+								{
+									"name": "Get Pre auth Token With PIN",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"// Token requests are expected to return a `200 Success` response code. Any",
+													"// other response code should trigger a failure.",
+													"pm.test(\"must return `200 Success` status\", function () {",
+													"    pm.response.to.have.status(200);",
+													"})",
+													"",
+													"pm.collectionVariables.set(\"pre_auth_code\", pm.response.text())",
+													"",
+													"pm.variables.set(\"PreauthCoderequest\", pm.request)",
+													""
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													"console.log(\"GET Pre_auth code\")"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{pre_auth_endpoint}}?pin=1234&type={{type}}&user_id={{user}}",
+											"host": [
+												"{{pre_auth_endpoint}}"
+											],
+											"query": [
+												{
+													"key": "pin",
+													"value": "1234"
+												},
+												{
+													"key": "type",
+													"value": "{{type}}"
+												},
+												{
+													"key": "user_id",
+													"value": "{{user}}"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "incorrectGrantType",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Status code is 302\", function () {",
+													"    pm.response.to.have.status(302);",
+													"});",
+													"",
+													"pm.test(\"Response header should contain Location - to redirect to login page\", function () {",
+													"    pm.response.to.have.header(\"Location\");",
+													"});",
+													"",
+													"pm.test(\"Location header pointing to login page\", () => {",
+													" pm.expect(pm.response.headers.get(\"Location\")).to.eql(\"http://auth.research.identiproof.io/login\")",
+													"});",
+													"",
+													""
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													"console.log(\"Incorrect grant type\")"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"protocolProfileBehavior": {
+										"disabledSystemHeaders": {
+											"user-agent": true
+										}
+									},
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/x-www-form-urlencoded",
+												"type": "default"
+											}
+										],
+										"url": {
+											"raw": "{{token_endpoint}}?grant_type=urn:ietf:params:oauth:grant-type:pre-authorized&pre-authorized_code={{pre_auth_code}}&pin={{pin}}",
+											"host": [
+												"{{token_endpoint}}"
+											],
+											"query": [
+												{
+													"key": "grant_type",
+													"value": "urn:ietf:params:oauth:grant-type:pre-authorized"
+												},
+												{
+													"key": "pre-authorized_code",
+													"value": "{{pre_auth_code}}"
+												},
+												{
+													"key": "pin",
+													"value": "{{pin}}"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "missing PIN",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Status code is 400\", function () {",
+													"    pm.response.to.have.status(400);",
+													"});",
+													"",
+													"pm.test(\"Error response - invalid grant\", function () {",
+													"    var jsonData = pm.response.json();",
+													"    pm.expect(jsonData.error).to.eql(\"invalid_grant\")",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"protocolProfileBehavior": {
+										"disabledSystemHeaders": {
+											"user-agent": true
+										}
+									},
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/x-www-form-urlencoded",
+												"type": "default"
+											}
+										],
+										"url": {
+											"raw": "{{token_endpoint}}?grant_type=urn:ietf:params:oauth:grant-type:pre-authorized_code&pre-authorized_code={{pre_auth_code}}",
+											"host": [
+												"{{token_endpoint}}"
+											],
+											"query": [
+												{
+													"key": "grant_type",
+													"value": "urn:ietf:params:oauth:grant-type:pre-authorized_code"
+												},
+												{
+													"key": "pre-authorized_code",
+													"value": "{{pre_auth_code}}"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "invalid PIN",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Status code is 400\", function () {",
+													"    pm.response.to.have.status(400);",
+													"});",
+													"",
+													"pm.test(\"Error response - invalid grant\", function () {",
+													"    var jsonData = pm.response.json();",
+													"    pm.expect(jsonData.error).to.eql(\"invalid_grant\")",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													"console.log(\"Invalid PIN\")"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"protocolProfileBehavior": {
+										"disabledSystemHeaders": {
+											"user-agent": true
+										}
+									},
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/x-www-form-urlencoded",
+												"type": "default"
+											}
+										],
+										"url": {
+											"raw": "{{token_endpoint}}?grant_type=urn:ietf:params:oauth:grant-type:pre-authorized_code&pre-authorized_code={{pre_auth_code}}&pin=0001",
+											"host": [
+												"{{token_endpoint}}"
+											],
+											"query": [
+												{
+													"key": "grant_type",
+													"value": "urn:ietf:params:oauth:grant-type:pre-authorized_code"
+												},
+												{
+													"key": "pre-authorized_code",
+													"value": "{{pre_auth_code}}"
+												},
+												{
+													"key": "pin",
+													"value": "0001"
+												}
+											]
+										}
+									},
+									"response": []
+								}
+							],
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											"pm.sendRequest(pm.variables.get(\"PreauthCoderequest\"))"
+										]
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											""
+										]
+									}
+								}
+							]
+						},
+						{
+							"name": "test preauth code",
+							"item": [
+								{
+									"name": "Get Pre auth Token With PIN",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"// Token requests are expected to return a `200 Success` response code. Any",
+													"// other response code should trigger a failure.",
+													"pm.test(\"must return `200 Success` status\", function () {",
+													"    pm.response.to.have.status(200);",
+													"})",
+													"",
+													"pm.collectionVariables.set(\"pre_auth_code\", pm.response.text())",
+													"",
+													"pm.variables.set(\"PreauthCoderequest\", pm.request)",
+													""
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													"console.log(\"GET Pre_auth code\")"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{pre_auth_endpoint}}?pin=1234&type={{type}}&user_id={{user}}",
+											"host": [
+												"{{pre_auth_endpoint}}"
+											],
+											"query": [
+												{
+													"key": "pin",
+													"value": "1234"
+												},
+												{
+													"key": "type",
+													"value": "{{type}}"
+												},
+												{
+													"key": "user_id",
+													"value": "{{user}}"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "invalidPreAuthCode",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Status code is 400\", function () {",
+													"    pm.response.to.have.status(400);",
+													"});",
+													"",
+													"pm.test(\"Error response - invalid grant\", function () {",
+													"    var jsonData = pm.response.json();",
+													"    pm.expect(jsonData.error).to.eql(\"invalid_grant\")",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													"console.log(\"Invalid preauth code\")"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"protocolProfileBehavior": {
+										"disabledSystemHeaders": {
+											"user-agent": true
+										}
+									},
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/x-www-form-urlencoded",
+												"type": "default"
+											}
+										],
+										"url": {
+											"raw": "{{token_endpoint}}?grant_type=urn:ietf:params:oauth:grant-type:pre-authorized_code&pre-authorized_code=unknown&pin={{pin}}",
+											"host": [
+												"{{token_endpoint}}"
+											],
+											"query": [
+												{
+													"key": "grant_type",
+													"value": "urn:ietf:params:oauth:grant-type:pre-authorized_code"
+												},
+												{
+													"key": "pre-authorized_code",
+													"value": "unknown"
+												},
+												{
+													"key": "pin",
+													"value": "{{pin}}"
+												}
+											]
+										}
+									},
+									"response": []
+								}
+							],
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											"pm.sendRequest(pm.variables.get(\"PreauthCoderequest\"))"
+										]
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											""
+										]
+									}
+								}
+							]
+						},
+						{
+							"name": "preauth code used twice",
+							"item": [
+								{
+									"name": "Get Pre auth Token With PIN",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"// Token requests are expected to return a `200 Success` response code. Any",
+													"// other response code should trigger a failure.",
+													"pm.test(\"must return `200 Success` status\", function () {",
+													"    pm.response.to.have.status(200);",
+													"})",
+													"",
+													"pm.collectionVariables.set(\"pre_auth_code\", pm.response.text())",
+													"",
+													"pm.variables.set(\"PreauthCoderequest\", pm.request)",
+													""
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													"console.log(\"GET Pre_auth code\")"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{pre_auth_endpoint}}?pin=1234&type={{type}}&user_id={{user}}",
+											"host": [
+												"{{pre_auth_endpoint}}"
+											],
+											"query": [
+												{
+													"key": "pin",
+													"value": "1234"
+												},
+												{
+													"key": "type",
+													"value": "{{type}}"
+												},
+												{
+													"key": "user_id",
+													"value": "{{user}}"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "obtain token 1st - success",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Status code is 200\", function () {",
+													"    pm.response.to.have.status(200);",
+													"});",
+													"",
+													"resp = pm.response.json()",
+													"",
+													"pm.collectionVariables.set(\"access_token\", resp.access_token)"
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													"console.log(\"Obtain token 1st time with preauth code\")"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"protocolProfileBehavior": {
+										"disabledSystemHeaders": {
+											"user-agent": true
+										}
+									},
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/x-www-form-urlencoded",
+												"type": "default"
+											}
+										],
+										"url": {
+											"raw": "{{token_endpoint}}?grant_type=urn:ietf:params:oauth:grant-type:pre-authorized_code&pre-authorized_code={{pre_auth_code}}&pin={{pin}}",
+											"host": [
+												"{{token_endpoint}}"
+											],
+											"query": [
+												{
+													"key": "grant_type",
+													"value": "urn:ietf:params:oauth:grant-type:pre-authorized_code"
+												},
+												{
+													"key": "pre-authorized_code",
+													"value": "{{pre_auth_code}}"
+												},
+												{
+													"key": "pin",
+													"value": "{{pin}}"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "obtain token 2nd - error",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Status code is 400\", function () {",
+													"    pm.response.to.have.status(400);",
+													"});",
+													"",
+													"pm.test(\"Error response - invalid grant\", function () {",
+													"    var jsonData = pm.response.json();",
+													"    pm.expect(jsonData.error).to.eql(\"invalid_grant\")",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													"console.log(\"Obtain token 2nd time with the same preauth code\")"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"protocolProfileBehavior": {
+										"disabledSystemHeaders": {
+											"user-agent": true
+										}
+									},
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/x-www-form-urlencoded",
+												"type": "default"
+											}
+										],
+										"url": {
+											"raw": "{{token_endpoint}}?grant_type=urn:ietf:params:oauth:grant-type:pre-authorized_code&pre-authorized_code={{pre_auth_code}}&pin={{pin}}",
+											"host": [
+												"{{token_endpoint}}"
+											],
+											"query": [
+												{
+													"key": "grant_type",
+													"value": "urn:ietf:params:oauth:grant-type:pre-authorized_code"
+												},
+												{
+													"key": "pre-authorized_code",
+													"value": "{{pre_auth_code}}"
+												},
+												{
+													"key": "pin",
+													"value": "{{pin}}"
+												}
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "preauth code expired",
+							"item": [
+								{
+									"name": "Get Pre auth Token With PIN",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"// Token requests are expected to return a `200 Success` response code. Any",
+													"// other response code should trigger a failure.",
+													"pm.test(\"must return `200 Success` status\", function () {",
+													"    pm.response.to.have.status(200);",
+													"})",
+													"",
+													"pm.collectionVariables.set(\"pre_auth_code\", pm.response.text())",
+													"",
+													"pm.variables.set(\"PreauthCoderequest\", pm.request)",
+													""
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													"console.log(\"GET Pre_auth code\")"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{pre_auth_endpoint}}?pin=1234&type={{type}}&user_id={{user}}",
+											"host": [
+												"{{pre_auth_endpoint}}"
+											],
+											"query": [
+												{
+													"key": "pin",
+													"value": "1234"
+												},
+												{
+													"key": "type",
+													"value": "{{type}}"
+												},
+												{
+													"key": "user_id",
+													"value": "{{user}}"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "obtain_token_code_expired",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Status code is 400\", function () {",
+													"    pm.response.to.have.status(400);",
+													"});",
+													"",
+													"pm.test(\"Error response - invalid grant\", function () {",
+													"    var jsonData = pm.response.json();",
+													"    pm.expect(jsonData.error).to.eql(\"invalid_grant\")",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													"console.log(\"Expired preauth code test\")",
+													"",
+													"setTimeout(function(){",
+													"          console.log(\"Sleeping for 10 seconds before next request.\");",
+													"          }, 10000);"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"protocolProfileBehavior": {
+										"disabledSystemHeaders": {
+											"user-agent": true
+										}
+									},
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/x-www-form-urlencoded",
+												"type": "default"
+											}
+										],
+										"url": {
+											"raw": "{{token_endpoint}}?grant_type=urn:ietf:params:oauth:grant-type:pre-authorized_code&pre-authorized_code=unknown&pin={{pin}}",
+											"host": [
+												"{{token_endpoint}}"
+											],
+											"query": [
+												{
+													"key": "grant_type",
+													"value": "urn:ietf:params:oauth:grant-type:pre-authorized_code"
+												},
+												{
+													"key": "pre-authorized_code",
+													"value": "unknown"
+												},
+												{
+													"key": "pin",
+													"value": "{{pin}}"
+												}
+											]
+										}
+									},
+									"response": []
+								}
+							],
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											"pm.sendRequest(pm.variables.get(\"PreauthCoderequest\"))"
+										]
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											""
+										]
+									}
+								}
+							]
+						},
+						{
+							"name": "obtain token No PIN",
+							"item": [
+								{
+									"name": "Get Pre auth Token Without PIN",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"// Token requests are expected to return a `200 Success` response code. Any",
+													"// other response code should trigger a failure.",
+													"pm.test(\"must return `200 Success` status\", function () {",
+													"    pm.response.to.have.status(200);",
+													"})",
+													"",
+													"pm.collectionVariables.set(\"pre_auth_code\", pm.response.text())",
+													"",
+													"pm.variables.set(\"PreauthCodeRequest\", pm.request)",
+													""
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													"console.log(\"GET Pre_auth code - without PIN\")"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{pre_auth_endpoint}}?type={{type}}&user_id={{user}}",
+											"host": [
+												"{{pre_auth_endpoint}}"
+											],
+											"query": [
+												{
+													"key": "type",
+													"value": "{{type}}"
+												},
+												{
+													"key": "user_id",
+													"value": "{{user}}"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "PIN given while not required - success",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Status code is 400\", function () {",
+													"    pm.response.to.have.status(400);",
+													"});",
+													"",
+													"pm.test(\"Error response - invalid grant\", function () {",
+													"    var jsonData = pm.response.json();",
+													"    pm.expect(jsonData.error).to.eql(\"invalid_grant\")",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													"console.log(\"Obtain token without PIN but random pin given\")"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"protocolProfileBehavior": {
+										"disabledSystemHeaders": {
+											"user-agent": true
+										}
+									},
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/x-www-form-urlencoded",
+												"type": "default"
+											}
+										],
+										"url": {
+											"raw": "{{token_endpoint}}?grant_type=urn:ietf:params:oauth:grant-type:pre-authorized_code&pre-authorized_code={{pre_auth_code}}&pin=0001",
+											"host": [
+												"{{token_endpoint}}"
+											],
+											"query": [
+												{
+													"key": "grant_type",
+													"value": "urn:ietf:params:oauth:grant-type:pre-authorized_code"
+												},
+												{
+													"key": "pre-authorized_code",
+													"value": "{{pre_auth_code}}"
+												},
+												{
+													"key": "pin",
+													"value": "0001"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "PIN not given - success",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Status code is 200\", function () {",
+													"    pm.response.to.have.status(200);",
+													"});",
+													"",
+													"pm.test(\"Your test name\", function () {",
+													"    var jsonData = pm.response.json();",
+													"    pm.expect(jsonData.access_token).not.empty;",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													"console.log(\"Obtain token without PIN\")"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"protocolProfileBehavior": {
+										"disabledSystemHeaders": {
+											"user-agent": true
+										}
+									},
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/x-www-form-urlencoded",
+												"type": "default"
+											}
+										],
+										"url": {
+											"raw": "{{token_endpoint}}?grant_type=urn:ietf:params:oauth:grant-type:pre-authorized_code&pre-authorized_code={{pre_auth_code}}",
+											"host": [
+												"{{token_endpoint}}"
+											],
+											"query": [
+												{
+													"key": "grant_type",
+													"value": "urn:ietf:params:oauth:grant-type:pre-authorized_code"
+												},
+												{
+													"key": "pre-authorized_code",
+													"value": "{{pre_auth_code}}"
+												},
+												{
+													"key": "pin",
+													"value": "0001",
+													"disabled": true
+												}
+											]
+										}
+									},
+									"response": []
+								}
+							],
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											"pm.sendRequest(pm.variables.get(\"PreauthCodeRequest\"))"
+										]
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											""
+										]
+									}
+								}
+							]
+						}
+					]
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"require(\"crypto-js\")",
+					"//postman-util-lib",
+					"eval(pm.globals.get('pmlib_code'));",
+					"",
+					"const ecKeypair = pmlib.rs.KEYUTIL.generateKeypair(\"EC\", \"secp256r1\")",
+					"",
+					"//const ecKeypair = pmlib.rs.KEYUTIL.generateKeypair(\"RSA\", \"256\")",
+					"",
+					"function encodeBase64(src) {",
+					"   srcArray = CryptoJS.enc.Utf8.parse(src)",
+					"   return  CryptoJS.enc.Base64.stringify(srcArray)",
+					"}",
+					"",
+					"console.log(\"Generate keys\")",
+					"",
+					"var privkeyPem = pmlib.rs.KEYUTIL.getPEM(ecKeypair.prvKeyObj, \"PKCS1PRV\");",
+					"pm.variables.set(\"rs_priv_key\", encodeBase64(privkeyPem))",
+					"",
+					"var pubPem = pmlib.rs.KEYUTIL.getPEM(ecKeypair.pubKeyObj)",
+					"pm.variables.set(\"rs_pub_key\", encodeBase64(pubPem))"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "pre_auth_code",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "pin",
+			"value": "1234",
+			"type": "default"
+		},
+		{
+			"key": "access_token",
+			"value": ""
+		},
+		{
+			"key": "c_nonce",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "vc_credential_termsofuse_type",
+			"value": "https://train.trust-scheme.de/info",
+			"type": "default"
+		},
+		{
+			"key": "current_vc_jwt",
+			"value": ""
+		}
+	]
+}
