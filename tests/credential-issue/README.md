@@ -14,12 +14,18 @@ Following elements need to be imported to Postman before run tests.
 
 * collection with test cases
     Import **NG-auth-flow.postman_collection.json** file to Postman collections
+
     <img src="./resources/import-collection-button.png"/>
+
 * global environment variables
     Import **ngi.postman_globals.json** global variables (it contain external library - pmlib_code - to sign/verify JWT as one of variable)
+
 * remote environment variables
+
     Import **research remote.postman_environment.json** remote environment variables. It contain properties which point to *research* environment
+    
     <img src="./resources/import-envs.png"/>
+
 
     INFO:
     Editing research remote.postman_environment.json file allows to set endpoints for: get pre_auth code, get access token (authentication server), get VC (issuer - resource server)
