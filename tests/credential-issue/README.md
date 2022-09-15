@@ -20,6 +20,10 @@ Following elements need to be imported to Postman before run tests.
 * remote environment variables
     Import **research remote.postman_environment.json** remote environment variables. It contain properties which point to *research* environment
     <img src="./resources/import-envs.png"/>
+
+    INFO:
+    Editing research remote.postman_environment.json file allows to set endpoints for: get pre_auth code, get access token (authentication server), get VC (issuer - resource server)
+
 ## Run test manually
 
 Before run tests make sure that proper environment variables set is selected.
