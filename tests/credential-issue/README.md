@@ -26,9 +26,14 @@ Following elements need to be imported to Postman before run tests.
     
     <img src="./resources/import-envs.png"/>
 
-
-    INFO:
-    Editing research remote.postman_environment.json file allows to set endpoints for: get pre_auth code, get access token (authentication server), get VC (issuer - resource server)
+    Editing **remote.postman_environment.json** file allows to set endpoints for:
+    * get pre_auth code - pre_auth_endpoint
+    * get access token (authentication server) - token_endpoint
+    * get VC (issuer - resource server) - resource_endpoint and issuer_uri
+  
+    In **remote.postman_environment.json** configuration file also following variables need to be set/updated:
+    * user - user name used as user_id in get pre_auth code request 
+    * type - type of credential to obtain in get VC request
 
 ## Run test manually
 
