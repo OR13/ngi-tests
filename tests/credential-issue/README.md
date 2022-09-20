@@ -1,16 +1,16 @@
 # How to run tests manually
 
-This document describes how to run issuer tests by hand.
+This document describes how to run the issuer tests by hand.
 
 ## Prerequisites
 
-Before getting started, you must ensure that you have the appropriate software installed locally. Installation of these items is beyond the scope of this document, but instructions can be found for your operating system at the links provided:
+Before getting started, you must ensure that you have the appropriate software installed locally. Installation of these items is beyond the scope of this document, but instructions can be found for your operating system at the following link:
 
 * Download and install [Postman](https://www.postman.com/).
 
-## Import required resources to postman
+## Import the required resources to Postman
 
-Following elements need to be imported to Postman before run tests.
+The following elements need to be imported to Postman before you can run the tests.
 
 * collection with test cases
     Import **NG-auth-flow.postman_collection.json** file to Postman collections
@@ -35,10 +35,10 @@ Following elements need to be imported to Postman before run tests.
     * user - user name used as user_id in get pre_auth code request 
     * type - type of credential to obtain in get VC request
 
-## Run test manually
+## Run the tests manually
 
-Before run tests make sure that proper environment variables set is selected.
+Before you run the tests make sure that your proper environment variables set is selected.
 <img src="./resources/select-env.png"/>
 
-Run test for *NGI auth flow* collection.
+To run the tests for the *NGI auth flow* collection:
  <img src="./resources/open-test-window.png"/>
