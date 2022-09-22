@@ -12,33 +12,37 @@ Before getting started, you must ensure that you have the appropriate software i
 
 The following elements need to be imported to Postman before you can run the tests.
 
-* collection with test cases
+* the collection with the NGI test cases
+
     Import **NG-auth-flow.postman_collection.json** file to Postman collections
 
     <img src="./resources/import-collection-button.png"/>
 
 * global environment variables
-    Import **ngi.postman_globals.json** global variables (it contain external library - pmlib_code - to sign/verify JWT as one of variable)
+
+    Import **ngi.postman_globals.json** global variables (it contains the external library - pmlib_code - to sign/verify JWTs as one of the variables)
 
 * remote environment variables
 
-    Import **research remote.postman_environment.json** remote environment variables. It contain properties which point to *research* environment
+    Import **research remote.postman_environment.json** remote environment variables. This contains properties which point to the *research* environment endpoints
     
     <img src="./resources/import-envs.png"/>
 
-    Editing **remote.postman_environment.json** file allows to set endpoints for:
-    * get pre_auth code - pre_auth_endpoint
-    * get access token (authentication server) - token_endpoint
-    * get VC (issuer - resource server) - resource_endpoint and issuer_uri
+    Editing the **remote.postman_environment.json** file allows you to set endpoints for:
+    * get pre_auth code - the pre_auth_endpoint
+    * get access token (authentication server) - the token_endpoint
+    * get VC (issuer - resource server) - the resource_endpoint and issuer_uri
   
-    In **remote.postman_environment.json** configuration file also following variables need to be set/updated:
-    * user - user name used as user_id in get pre_auth code request 
-    * type - type of credential to obtain in get VC request
+    In the **remote.postman_environment.json** configuration file the following variables need to be set/updated:
+    * user - user name used as user_id in the get pre_auth code request 
+    * type - type of credential to be obtained in the get VC request
 
 ## Run the tests manually
 
 Before you run the tests make sure that your proper environment variables set is selected.
+
 <img src="./resources/select-env.png"/>
 
 To run the tests for the *NGI auth flow* collection:
+
  <img src="./resources/open-test-window.png"/>
