@@ -9,7 +9,7 @@
   "scripts": {
     "clean": "npm run report:clean",
     "report:clean": "rm -rf ./docs/reports/*",
-    "report:generate": "npx newman run ./tests/credential-issue/NG-auth-flow.postman_collection.json -g ./tests/credential-issue/ngi.postman_globals.json -e ./tests/credential-issue/research-remote.postman_environment.json -r cli,htmlextra --reporter-htmlextra-export ./results/report.html --ignore-redirects"
+    "test:issueVc": "npx newman run ./tests/credential-issue/NG-auth-flow.postman_collection.json -g ./tests/credential-issue/ngi.postman_globals.json -e ./tests/credential-issue/research-remote.postman_environment.json -r cli,htmlextra --reporter-htmlextra-export ./docs/reports/test-issueVC-report.html --ignore-redirects"
   },
   "devDependencies": {
     "eslint": "^8.4.1",
