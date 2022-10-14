@@ -103,7 +103,7 @@
 											}
 										],
 										"url": {
-											"raw": "{{token_endpoint}}?grant_type=urn:ietf:params:oauth:grant-type:pre-authorized_code&pre-authorized_code={{pre_auth_code}}&pin={{pin}}",
+											"raw": "{{token_endpoint}}?grant_type=urn:ietf:params:oauth:grant-type:pre-authorized_code&pre-authorized_code={{pre_auth_code}}&user_pin={{pin}}",
 											"host": [
 												"{{token_endpoint}}"
 											],
@@ -117,7 +117,7 @@
 													"value": "{{pre_auth_code}}"
 												},
 												{
-													"key": "pin",
+													"key": "user_pin",
 													"value": "{{pin}}"
 												}
 											]
@@ -510,7 +510,7 @@
 											}
 										],
 										"url": {
-											"raw": "{{token_endpoint}}?grant_type=urn:ietf:params:oauth:grant-type:pre-authorized_code&pre-authorized_code={{pre_auth_code}}&pin={{pin}}",
+											"raw": "{{token_endpoint}}?grant_type=urn:ietf:params:oauth:grant-type:pre-authorized_code&pre-authorized_code={{pre_auth_code}}&user_pin={{pin}}",
 											"host": [
 												"{{token_endpoint}}"
 											],
@@ -524,7 +524,7 @@
 													"value": "{{pre_auth_code}}"
 												},
 												{
-													"key": "pin",
+													"key": "user_pin",
 													"value": "{{pin}}"
 												}
 											]
@@ -742,7 +742,7 @@
 											}
 										],
 										"url": {
-											"raw": "{{token_endpoint}}?grant_type=urn:ietf:params:oauth:grant-type:pre-authorized_code&pre-authorized_code={{pre_auth_code}}&pin={{pin}}",
+											"raw": "{{token_endpoint}}?grant_type=urn:ietf:params:oauth:grant-type:pre-authorized_code&pre-authorized_code={{pre_auth_code}}&user_pin={{pin}}",
 											"host": [
 												"{{token_endpoint}}"
 											],
@@ -756,7 +756,7 @@
 													"value": "{{pre_auth_code}}"
 												},
 												{
-													"key": "pin",
+													"key": "user_pin",
 													"value": "{{pin}}"
 												}
 											]
@@ -1149,7 +1149,7 @@
 											}
 										],
 										"url": {
-											"raw": "{{token_endpoint}}?grant_type=urn:ietf:params:oauth:grant-type:pre-authorized_code&pre-authorized_code={{pre_auth_code}}&pin={{pin}}",
+											"raw": "{{token_endpoint}}?grant_type=urn:ietf:params:oauth:grant-type:pre-authorized_code&pre-authorized_code={{pre_auth_code}}&user_pin={{pin}}",
 											"host": [
 												"{{token_endpoint}}"
 											],
@@ -1163,7 +1163,7 @@
 													"value": "{{pre_auth_code}}"
 												},
 												{
-													"key": "pin",
+													"key": "user_pin",
 													"value": "{{pin}}"
 												}
 											]
@@ -1711,7 +1711,7 @@
 											}
 										],
 										"url": {
-											"raw": "{{token_endpoint}}?grant_type=urn:ietf:params:oauth:grant-type:pre-authorized_code&pre-authorized_code={{pre_auth_code}}&pin={{pin}}",
+											"raw": "{{token_endpoint}}?grant_type=urn:ietf:params:oauth:grant-type:pre-authorized_code&pre-authorized_code={{pre_auth_code}}&user_pin={{pin}}",
 											"host": [
 												"{{token_endpoint}}"
 											],
@@ -1725,7 +1725,7 @@
 													"value": "{{pre_auth_code}}"
 												},
 												{
-													"key": "pin",
+													"key": "user_pin",
 													"value": "{{pin}}"
 												}
 											]
@@ -2002,7 +2002,7 @@
 											}
 										],
 										"url": {
-											"raw": "{{token_endpoint}}?grant_type=urn:ietf:params:oauth:grant-type:pre-authorized_code&pre-authorized_code={{pre_auth_code}}&pin={{pin}}",
+											"raw": "{{token_endpoint}}?grant_type=urn:ietf:params:oauth:grant-type:pre-authorized_code&pre-authorized_code={{pre_auth_code}}&user_pin={{pin}}",
 											"host": [
 												"{{token_endpoint}}"
 											],
@@ -2016,7 +2016,7 @@
 													"value": "{{pre_auth_code}}"
 												},
 												{
-													"key": "pin",
+													"key": "user_pin",
 													"value": "{{pin}}"
 												}
 											]
@@ -2073,7 +2073,7 @@
 											}
 										],
 										"url": {
-											"raw": "{{token_endpoint}}?grant_type=urn:ietf:params:oauth:grant-type:pre-authorized&pre-authorized_code={{pre_auth_code}}&pin={{pin}}",
+											"raw": "{{token_endpoint}}?grant_type=urn:ietf:params:oauth:grant-type:pre-authorized&pre-authorized_code={{pre_auth_code}}&user_pin={{pin}}",
 											"host": [
 												"{{token_endpoint}}"
 											],
@@ -2087,7 +2087,7 @@
 													"value": "{{pre_auth_code}}"
 												},
 												{
-													"key": "pin",
+													"key": "user_pin",
 													"value": "{{pin}}"
 												}
 											]
@@ -2192,7 +2192,7 @@
 											}
 										],
 										"url": {
-											"raw": "{{token_endpoint}}?grant_type=urn:ietf:params:oauth:grant-type:pre-authorized_code&pre-authorized_code={{pre_auth_code}}&pin=0001",
+											"raw": "{{token_endpoint}}?grant_type=urn:ietf:params:oauth:grant-type:pre-authorized_code&pre-authorized_code={{pre_auth_code}}&user_pin=0001",
 											"host": [
 												"{{token_endpoint}}"
 											],
@@ -2206,7 +2206,7 @@
 													"value": "{{pre_auth_code}}"
 												},
 												{
-													"key": "pin",
+													"key": "user_pin",
 													"value": "0001"
 												}
 											]
@@ -2349,7 +2349,7 @@
 											}
 										],
 										"url": {
-											"raw": "{{token_endpoint}}?grant_type=urn:ietf:params:oauth:grant-type:pre-authorized_code&pre-authorized_code=unknown&pin={{pin}}",
+											"raw": "{{token_endpoint}}?grant_type=urn:ietf:params:oauth:grant-type:pre-authorized_code&pre-authorized_code=unknown&user_pin={{pin}}",
 											"host": [
 												"{{token_endpoint}}"
 											],
@@ -2363,7 +2363,7 @@
 													"value": "unknown"
 												},
 												{
-													"key": "pin",
+													"key": "user_pin",
 													"value": "{{pin}}"
 												}
 											]
@@ -2505,7 +2505,7 @@
 											}
 										],
 										"url": {
-											"raw": "{{token_endpoint}}?grant_type=urn:ietf:params:oauth:grant-type:pre-authorized_code&pre-authorized_code={{pre_auth_code}}&pin={{pin}}",
+											"raw": "{{token_endpoint}}?grant_type=urn:ietf:params:oauth:grant-type:pre-authorized_code&pre-authorized_code={{pre_auth_code}}&user_pin={{pin}}",
 											"host": [
 												"{{token_endpoint}}"
 											],
@@ -2519,7 +2519,7 @@
 													"value": "{{pre_auth_code}}"
 												},
 												{
-													"key": "pin",
+													"key": "user_pin",
 													"value": "{{pin}}"
 												}
 											]
@@ -2571,7 +2571,7 @@
 											}
 										],
 										"url": {
-											"raw": "{{token_endpoint}}?grant_type=urn:ietf:params:oauth:grant-type:pre-authorized_code&pre-authorized_code={{pre_auth_code}}&pin={{pin}}",
+											"raw": "{{token_endpoint}}?grant_type=urn:ietf:params:oauth:grant-type:pre-authorized_code&pre-authorized_code={{pre_auth_code}}&user_pin={{pin}}",
 											"host": [
 												"{{token_endpoint}}"
 											],
@@ -2585,7 +2585,7 @@
 													"value": "{{pre_auth_code}}"
 												},
 												{
-													"key": "pin",
+													"key": "user_pin",
 													"value": "{{pin}}"
 												}
 											]
@@ -2714,7 +2714,7 @@
 											}
 										],
 										"url": {
-											"raw": "{{token_endpoint}}?grant_type=urn:ietf:params:oauth:grant-type:pre-authorized_code&pre-authorized_code=unknown&pin={{pin}}",
+											"raw": "{{token_endpoint}}?grant_type=urn:ietf:params:oauth:grant-type:pre-authorized_code&pre-authorized_code=unknown&user_pin={{pin}}",
 											"host": [
 												"{{token_endpoint}}"
 											],
@@ -2728,7 +2728,7 @@
 													"value": "unknown"
 												},
 												{
-													"key": "pin",
+													"key": "user_pin",
 													"value": "{{pin}}"
 												}
 											]
@@ -2867,7 +2867,7 @@
 											}
 										],
 										"url": {
-											"raw": "{{token_endpoint}}?grant_type=urn:ietf:params:oauth:grant-type:pre-authorized_code&pre-authorized_code={{pre_auth_code}}&pin=0001",
+											"raw": "{{token_endpoint}}?grant_type=urn:ietf:params:oauth:grant-type:pre-authorized_code&pre-authorized_code={{pre_auth_code}}&user_pin=0001",
 											"host": [
 												"{{token_endpoint}}"
 											],
@@ -2881,7 +2881,7 @@
 													"value": "{{pre_auth_code}}"
 												},
 												{
-													"key": "pin",
+													"key": "user_pin",
 													"value": "0001"
 												}
 											]
@@ -3020,7 +3020,7 @@
 											}
 										],
 										"url": {
-											"raw": "{{token_endpoint}}?grant_type=urn:ietf:params:oauth:grant-type:pre-authorized_code&pre-authorized_code={{pre_auth_code}}&pin=0001",
+											"raw": "{{token_endpoint}}?grant_type=urn:ietf:params:oauth:grant-type:pre-authorized_code&pre-authorized_code={{pre_auth_code}}&user_pin=0001",
 											"host": [
 												"{{token_endpoint}}"
 											],
@@ -3034,7 +3034,7 @@
 													"value": "{{pre_auth_code}}"
 												},
 												{
-													"key": "pin",
+													"key": "user_pin",
 													"value": "0001"
 												}
 											]
@@ -3315,7 +3315,7 @@
 											}
 										],
 										"url": {
-											"raw": "{{token_endpoint}}?grant_type=urn:ietf:params:oauth:grant-type:pre-authorized_code&pre-authorized_code={{pre_auth_code}}&pin={{pin}}",
+											"raw": "{{token_endpoint}}?grant_type=urn:ietf:params:oauth:grant-type:pre-authorized_code&pre-authorized_code={{pre_auth_code}}&user_pin={{pin}}",
 											"host": [
 												"{{token_endpoint}}"
 											],
@@ -3329,7 +3329,7 @@
 													"value": "{{pre_auth_code}}"
 												},
 												{
-													"key": "pin",
+													"key": "user_pin",
 													"value": "{{pin}}"
 												}
 											]
@@ -3666,7 +3666,7 @@
 											}
 										],
 										"url": {
-											"raw": "{{token_endpoint}}?grant_type=urn:ietf:params:oauth:grant-type:pre-authorized_code&pre-authorized_code={{pre_auth_code}}&pin={{pin}}",
+											"raw": "{{token_endpoint}}?grant_type=urn:ietf:params:oauth:grant-type:pre-authorized_code&pre-authorized_code={{pre_auth_code}}&user_pin={{pin}}",
 											"host": [
 												"{{token_endpoint}}"
 											],
@@ -3680,7 +3680,7 @@
 													"value": "{{pre_auth_code}}"
 												},
 												{
-													"key": "pin",
+													"key": "user_pin",
 													"value": "{{pin}}"
 												}
 											]
