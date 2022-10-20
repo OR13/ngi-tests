@@ -3610,7 +3610,7 @@
 											}
 										},
 										"url": {
-											"raw": "{{pre_auth_endpoint}}?pin={{pin}}&type={{type}}&user_id={{user}}",
+											"raw": "{{pre_auth_endpoint}}?pin={{pin}}&type={{extType}}&user_id={{user}}",
 											"host": [
 												"{{pre_auth_endpoint}}"
 											],
@@ -3621,7 +3621,7 @@
 												},
 												{
 													"key": "type",
-													"value": "{{type}}"
+													"value": "{{extType}}"
 												},
 												{
 													"key": "user_id",
@@ -3858,7 +3858,7 @@
 										"header": [],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n    \"type\": \"{{type}}\",\n    \"format\": \"jwt_vc\",\n    \"proof\": {\"proof_type\": \"jwt\", \"jwt\": \"{{jwt_pop}}\"}\n}",
+											"raw": "{\n    \"type\": \"{{extType}}\",\n    \"format\": \"jwt_vc\",\n    \"proof\": {\"proof_type\": \"jwt\", \"jwt\": \"{{jwt_pop}}\"}\n}",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -3998,9 +3998,9 @@
 													"});",
 													"",
 													"pm.test(\"Check VC contain expected types\", function () {",
-													"    vcType = pm.variables.get(\"type\")",
+													"    vcType = pm.variables.get(\"extType\")",
 													"    pm.expect(jwsParsed.payloadObj.vc.type).to.include(\"VerifiableCredential\");",
-													"    pm.expect(jwsParsed.payloadObj.vc.type).to.include(\"aa\",\"VC should contain [VerifiableCredential,\" + vcType + \"] types\");",
+													"    pm.expect(jwsParsed.payloadObj.vc.type).to.include(vcType,\"VC should contain [VerifiableCredential,\" + vcType + \"] types\");",
 													"});",
 													"",
 													""
@@ -4027,7 +4027,7 @@
 										"header": [],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n    \"type\": \"{{type}}\",\n    \"format\": \"jwt_vc\",\n    \"proof\": {\"proof_type\": \"jwt\", \"jwt\": \"{{jwt_pop}}\"}\n}",
+											"raw": "{\n    \"type\": \"{{extType}}\",\n    \"format\": \"jwt_vc\",\n    \"proof\": {\"proof_type\": \"jwt\", \"jwt\": \"{{jwt_pop}}\"}\n}",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -4215,7 +4215,7 @@
 										"header": [],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n    \"type\": \"{{type}}\",\n    \"format\": \"jwt_vc\",\n    \"proof\": {\"proof_type\": \"jwt\", \"jwt\": \"{{jwt_pop}}\"}\n}",
+											"raw": "{\n    \"type\": \"{{extType}}\",\n    \"format\": \"jwt_vc\",\n    \"proof\": {\"proof_type\": \"jwt\", \"jwt\": \"{{jwt_pop}}\"}\n}",
 											"options": {
 												"raw": {
 													"language": "json"
