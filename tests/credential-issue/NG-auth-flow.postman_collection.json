@@ -47,7 +47,7 @@
 											}
 										},
 										"url": {
-											"raw": "{{pre_auth_endpoint}}?pin={{pin}}&type={{type}}&user_id={{user}}",
+											"raw": "{{pre_auth_endpoint}}?pin={{pin}}&type={{type}}&user_id={{user}}&client_id={{client_id}}",
 											"host": [
 												"{{pre_auth_endpoint}}"
 											],
@@ -63,6 +63,10 @@
 												{
 													"key": "user_id",
 													"value": "{{user}}"
+												},
+												{
+													"key": "client_id",
+													"value": "{{client_id}}"
 												}
 											]
 										}
@@ -103,7 +107,7 @@
 											}
 										],
 										"url": {
-											"raw": "{{token_endpoint}}?grant_type=urn:ietf:params:oauth:grant-type:pre-authorized_code&pre-authorized_code={{pre_auth_code}}&user_pin={{pin}}",
+											"raw": "{{token_endpoint}}?grant_type=urn:ietf:params:oauth:grant-type:pre-authorized_code&pre-authorized_code={{pre_auth_code}}&user_pin={{pin}}&client_id={{client_id}}",
 											"host": [
 												"{{token_endpoint}}"
 											],
@@ -119,6 +123,10 @@
 												{
 													"key": "user_pin",
 													"value": "{{pin}}"
+												},
+												{
+													"key": "client_id",
+													"value": "{{client_id}}"
 												}
 											]
 										}
@@ -139,6 +147,9 @@
 													"eval(pm.globals.get('pmlib_code'));",
 													"",
 													"var jwtExpireTimeSec =  parseInt(pm.variables.get(\"jwt_exp_sec\"));",
+													"var jwtSignAlg = pm.collectionVariables.get(\"jwt_sign_alg\")",
+													"var authClientId = pm.variables.get(\"client_id\")",
+													"",
 													"var nonce =  Math.floor(Math.random() *1000000).toString(36);",
 													"const currentTimeSec =  Math.floor(Date.now() / 1000);",
 													"",
@@ -183,7 +194,7 @@
 													"}",
 													"",
 													"var header = {",
-													"    \"alg\": \"ES256\",",
+													"    \"alg\": jwtSignAlg,",
 													"    \"typ\": \"JWT\"",
 													"};",
 													"",
@@ -207,7 +218,7 @@
 													"addIAT(jwtPayload);",
 													"addNonce(jwtPayload, nonce);",
 													"addExpTime(jwtPayload, jwtExpireTimeSec)",
-													"jwtPayload.iss = header.kid",
+													"jwtPayload.iss = authClientId",
 													"",
 													"//const jws = pmlib.jwtSign(jwk, jwtPayload, header, jwtExpireTimeSec, \"ES256\");",
 													"",
@@ -284,6 +295,9 @@
 													"eval(pm.globals.get('pmlib_code'));",
 													"",
 													"var jwtExpireTimeSec =  parseInt(pm.variables.get(\"jwt_exp_sec\"));",
+													"var jwtSignAlg = pm.collectionVariables.get(\"jwt_sign_alg\")",
+													"var authClientId = pm.variables.get(\"client_id\")",
+													"",
 													"var nonce =  Math.floor(Math.random() *1000000).toString(36);",
 													"const currentTimeSec =  Math.floor(Date.now() / 1000);",
 													"",
@@ -328,7 +342,7 @@
 													"}",
 													"",
 													"var header = {",
-													"    \"alg\": \"ES256\",",
+													"    \"alg\": jwtSignAlg,",
 													"    \"typ\": \"JWT\"",
 													"};",
 													"",
@@ -352,7 +366,7 @@
 													"addIAT(jwtPayload);",
 													"addNonce(jwtPayload, nonce);",
 													"addExpTime(jwtPayload, jwtExpireTimeSec)",
-													"jwtPayload.iss = header.kid",
+													"jwtPayload.iss = authClientId",
 													"",
 													"//const jws = pmlib.jwtSign(jwk, jwtPayload, header, jwtExpireTimeSec, \"ES256\");",
 													"",
@@ -454,7 +468,7 @@
 											}
 										},
 										"url": {
-											"raw": "{{pre_auth_endpoint}}?pin={{pin}}&type={{type}}&user_id={{user}}",
+											"raw": "{{pre_auth_endpoint}}?pin={{pin}}&type={{type}}&user_id={{user}}&client_id={{client_id}}",
 											"host": [
 												"{{pre_auth_endpoint}}"
 											],
@@ -470,6 +484,10 @@
 												{
 													"key": "user_id",
 													"value": "{{user}}"
+												},
+												{
+													"key": "client_id",
+													"value": "{{client_id}}"
 												}
 											]
 										}
@@ -510,7 +528,7 @@
 											}
 										],
 										"url": {
-											"raw": "{{token_endpoint}}?grant_type=urn:ietf:params:oauth:grant-type:pre-authorized_code&pre-authorized_code={{pre_auth_code}}&user_pin={{pin}}",
+											"raw": "{{token_endpoint}}?grant_type=urn:ietf:params:oauth:grant-type:pre-authorized_code&pre-authorized_code={{pre_auth_code}}&user_pin={{pin}}&client_id={{client_id}}",
 											"host": [
 												"{{token_endpoint}}"
 											],
@@ -526,6 +544,10 @@
 												{
 													"key": "user_pin",
 													"value": "{{pin}}"
+												},
+												{
+													"key": "client_id",
+													"value": "{{client_id}}"
 												}
 											]
 										}
@@ -686,7 +708,7 @@
 											}
 										},
 										"url": {
-											"raw": "{{pre_auth_endpoint}}?pin={{pin}}&type={{type}}&user_id={{user}}",
+											"raw": "{{pre_auth_endpoint}}?pin={{pin}}&type={{type}}&user_id={{user}}&client_id={{client_id}}",
 											"host": [
 												"{{pre_auth_endpoint}}"
 											],
@@ -702,6 +724,10 @@
 												{
 													"key": "user_id",
 													"value": "{{user}}"
+												},
+												{
+													"key": "client_id",
+													"value": "{{client_id}}"
 												}
 											]
 										}
@@ -742,7 +768,7 @@
 											}
 										],
 										"url": {
-											"raw": "{{token_endpoint}}?grant_type=urn:ietf:params:oauth:grant-type:pre-authorized_code&pre-authorized_code={{pre_auth_code}}&user_pin={{pin}}",
+											"raw": "{{token_endpoint}}?grant_type=urn:ietf:params:oauth:grant-type:pre-authorized_code&pre-authorized_code={{pre_auth_code}}&user_pin={{pin}}&client_id={{client_id}}",
 											"host": [
 												"{{token_endpoint}}"
 											],
@@ -758,6 +784,10 @@
 												{
 													"key": "user_pin",
 													"value": "{{pin}}"
+												},
+												{
+													"key": "client_id",
+													"value": "{{client_id}}"
 												}
 											]
 										}
@@ -778,6 +808,9 @@
 													"eval(pm.globals.get('pmlib_code'));",
 													"",
 													"var jwtExpireTimeSec =  parseInt(pm.variables.get(\"jwt_exp_sec\"));",
+													"var jwtSignAlg = pm.collectionVariables.get(\"jwt_sign_alg\")",
+													"var authClientId = pm.variables.get(\"client_id\")",
+													"",
 													"var nonce =  Math.floor(Math.random() *1000000).toString(36);",
 													"const currentTimeSec =  Math.floor(Date.now() / 1000);",
 													"",
@@ -822,7 +855,7 @@
 													"}",
 													"",
 													"var header = {",
-													"    \"alg\": \"ES256\",",
+													"    \"alg\": jwtSignAlg,",
 													"    \"typ\": \"JWT\"",
 													"};",
 													"",
@@ -846,7 +879,7 @@
 													"addIAT(jwtPayload);",
 													"addNonce(jwtPayload, nonce);",
 													"addExpTime(jwtPayload, jwtExpireTimeSec)",
-													"jwtPayload.iss = header.kid",
+													"jwtPayload.iss = authClientId",
 													"",
 													"//const jws = pmlib.jwtSign(jwk, jwtPayload, header, jwtExpireTimeSec, \"ES256\");",
 													"",
@@ -923,6 +956,9 @@
 													"eval(pm.globals.get('pmlib_code'));",
 													"",
 													"var jwtExpireTimeSec =  parseInt(pm.variables.get(\"jwt_exp_sec\"));",
+													"var jwtSignAlg = pm.collectionVariables.get(\"jwt_sign_alg\")",
+													"var authClientId = pm.variables.get(\"client_id\")",
+													"",
 													"var nonce =  Math.floor(Math.random() *1000000).toString(36);",
 													"const currentTimeSec =  Math.floor(Date.now() / 1000);",
 													"",
@@ -967,7 +1003,7 @@
 													"}",
 													"",
 													"var header = {",
-													"    \"alg\": \"ES256\",",
+													"    \"alg\": jwtSignAlg,",
 													"    \"typ\": \"JWT\"",
 													"};",
 													"",
@@ -991,7 +1027,7 @@
 													"addIAT(jwtPayload);",
 													"addNonce(jwtPayload, nonce);",
 													"addExpTime(jwtPayload, jwtExpireTimeSec)",
-													"jwtPayload.iss = header.kid",
+													"jwtPayload.iss = authClientId",
 													"",
 													"//const jws = pmlib.jwtSign(jwk, jwtPayload, header, jwtExpireTimeSec, \"ES256\");",
 													"",
@@ -1093,7 +1129,7 @@
 											}
 										},
 										"url": {
-											"raw": "{{pre_auth_endpoint}}?pin={{pin}}&type={{type}}&user_id={{user}}",
+											"raw": "{{pre_auth_endpoint}}?pin={{pin}}&type={{type}}&user_id={{user}}&client_id={{client_id}}",
 											"host": [
 												"{{pre_auth_endpoint}}"
 											],
@@ -1109,6 +1145,10 @@
 												{
 													"key": "user_id",
 													"value": "{{user}}"
+												},
+												{
+													"key": "client_id",
+													"value": "{{client_id}}"
 												}
 											]
 										}
@@ -1149,7 +1189,7 @@
 											}
 										],
 										"url": {
-											"raw": "{{token_endpoint}}?grant_type=urn:ietf:params:oauth:grant-type:pre-authorized_code&pre-authorized_code={{pre_auth_code}}&user_pin={{pin}}",
+											"raw": "{{token_endpoint}}?grant_type=urn:ietf:params:oauth:grant-type:pre-authorized_code&pre-authorized_code={{pre_auth_code}}&user_pin={{pin}}&client_id={{client_id}}",
 											"host": [
 												"{{token_endpoint}}"
 											],
@@ -1165,6 +1205,10 @@
 												{
 													"key": "user_pin",
 													"value": "{{pin}}"
+												},
+												{
+													"key": "client_id",
+													"value": "{{client_id}}"
 												}
 											]
 										}
@@ -1185,6 +1229,9 @@
 													"console.log(\"Start obtain credential test\");",
 													"",
 													"var jwtExpireTimeSec =  parseInt(pm.variables.get(\"jwt_exp_sec\"));",
+													"var jwtSignAlg = pm.collectionVariables.get(\"jwt_sign_alg\")",
+													"var authClientId = pm.variables.get(\"client_id\")",
+													"",
 													"var nonce =  Math.floor(Math.random() *1000000).toString(36);",
 													"const currentTimeSec =  Math.floor(Date.now() / 1000);",
 													"",
@@ -1229,7 +1276,7 @@
 													"}",
 													"",
 													"var header = {",
-													"    \"alg\": \"ES256\",",
+													"    \"alg\": jwtSignAlg,",
 													"    \"typ\": \"JWT\"",
 													"};",
 													"",
@@ -1256,7 +1303,7 @@
 													"addIAT(jwtPayload);",
 													"addNonce(jwtPayload, nonce);",
 													"addExpTime(jwtPayload, jwtExpireTimeSec)",
-													"jwtPayload.iss = header.kid",
+													"jwtPayload.iss = authClientId",
 													"",
 													"//const jws = pmlib.jwtSign(jwk, jwtPayload, header, jwtExpireTimeSec, \"ES256\");",
 													"",
@@ -1337,6 +1384,9 @@
 													"console.log(\"Get VC - invalid PoP , different PUB key\");",
 													"",
 													"var jwtExpireTimeSec =  parseInt(pm.variables.get(\"jwt_exp_sec\"));",
+													"var jwtSignAlg = pm.collectionVariables.get(\"jwt_sign_alg\")",
+													"var authClientId = pm.variables.get(\"client_id\")",
+													"",
 													"var nonce =  Math.floor(Math.random() *1000000).toString(36);",
 													"const currentTimeSec =  Math.floor(Date.now() / 1000);",
 													"",
@@ -1381,7 +1431,7 @@
 													"}",
 													"",
 													"var header = {",
-													"    \"alg\": \"ES256\",",
+													"    \"alg\": jwtSignAlg,",
 													"    \"typ\": \"JWT\"",
 													"};",
 													"",
@@ -1411,7 +1461,7 @@
 													"addIAT(jwtPayload);",
 													"addNonce(jwtPayload, nonce);",
 													"addExpTime(jwtPayload, jwtExpireTimeSec)",
-													"jwtPayload.iss = header.kid",
+													"jwtPayload.iss = authClientId",
 													"",
 													"const jws = pmlib.rs.jws.JWS.sign(header.alg, header, jwtPayload, privKey);",
 													"",
@@ -1490,6 +1540,9 @@
 													"console.log(\"Get VC - invalid PoP , different PUB key\");",
 													"",
 													"var jwtExpireTimeSec =  parseInt(pm.variables.get(\"jwt_exp_sec\"));",
+													"var jwtSignAlg = pm.collectionVariables.get(\"jwt_sign_alg\")",
+													"var authClientId = pm.variables.get(\"client_id\")",
+													"",
 													"var nonce =  Math.floor(Math.random() *1000000).toString(36);",
 													"const currentTimeSec =  Math.floor(Date.now() / 1000);",
 													"",
@@ -1534,7 +1587,7 @@
 													"}",
 													"",
 													"var header = {",
-													"    \"alg\": \"ES256\",",
+													"    \"alg\": jwtSignAlg,",
 													"    \"typ\": \"JWT\"",
 													"};",
 													"",
@@ -1550,9 +1603,165 @@
 													"addIAT(jwtPayload);",
 													"addNonce(jwtPayload, nonce);",
 													"addExpTime(jwtPayload, jwtExpireTimeSec)",
-													"jwtPayload.iss = header.kid",
+													"jwtPayload.iss = authClientId",
 													"",
 													"//const jws = pmlib.jwtSign(jwk, jwtPayload, header, jwtExpireTimeSec, \"ES256\");",
+													"",
+													"const jws = pmlib.rs.jws.JWS.sign(header.alg, header, jwtPayload, privKey);",
+													"",
+													"console.log(\"Token signed\")",
+													"console.log(jws);",
+													"",
+													"pm.variables.set(\"jwt_pop\", jws);",
+													""
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Status code is 400\", function () {",
+													"    pm.response.to.have.status(400);",
+													"});",
+													"",
+													"pm.test(\"Error response - invalid request\", function () {",
+													"    var jsonData = pm.response.json();",
+													"    pm.expect(jsonData.error).to.eql(\"invalid_or_missing_proof\")",
+													"});",
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"protocolProfileBehavior": {
+										"disabledSystemHeaders": {}
+									},
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{access_token}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"type\": \"{{type}}\",\n    \"format\": \"jwt_vc\",\n    \"proof\": {\"proof_type\": \"jwt\", \"jwt\": \"{{jwt_pop}}\"}\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{resource_endpoint}}",
+											"host": [
+												"{{resource_endpoint}}"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "invalid PoP - invalid kid type",
+									"event": [
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													"require(\"crypto-js\")",
+													"//postman-util-lib",
+													"eval(pm.globals.get('pmlib_code'));",
+													"",
+													"console.log(\"Get VC - invalid PoP , different PUB key\");",
+													"",
+													"var jwtExpireTimeSec =  parseInt(pm.variables.get(\"jwt_exp_sec\"));",
+													"var jwtSignAlg = pm.collectionVariables.get(\"jwt_sign_alg\")",
+													"var authClientId = pm.variables.get(\"client_id\")",
+													"",
+													"var nonce =  Math.floor(Math.random() *1000000).toString(36);",
+													"const currentTimeSec =  Math.floor(Date.now() / 1000);",
+													"",
+													"function base64url(source) {",
+													"    // Encode in classical base64",
+													"    encodedSource = CryptoJS.enc.Base64.stringify(source);",
+													"",
+													"    // Remove padding equal characters",
+													"    encodedSource = encodedSource.replace(/=+$/, '');",
+													"",
+													"    // Replace characters according to base64url specifications",
+													"    encodedSource = encodedSource.replace(/\\+/g, '-');",
+													"    encodedSource = encodedSource.replace(/\\//g, '_');",
+													"",
+													"    return encodedSource;",
+													"}",
+													"",
+													"function decodeBase64(src) {",
+													"    arr = CryptoJS.enc.Base64.parse(src)",
+													"    return CryptoJS.enc.Utf8.stringify(arr)",
+													"}",
+													"",
+													"function addIAT(data) {",
+													"    var iat = currentTimeSec - 100;",
+													"    data.iat = iat;",
+													"    return data;",
+													"}",
+													"",
+													"function addNonce(data, nonce) {",
+													"    data.jti = nonce;",
+													"    return data;",
+													"}",
+													"",
+													"function addExpTime(data, exp) {",
+													"    data.exp = currentTimeSec + exp;",
+													"    return data;",
+													"}",
+													"",
+													"function addKid(data,jwkPub) {",
+													"    data.kid = \"did:jws:\" + base64url(CryptoJS.enc.Utf8.parse(JSON.stringify(jwkPub)));",
+													"    return data;",
+													"}",
+													"",
+													"var header = {",
+													"    \"alg\": jwtSignAlg,",
+													"    \"typ\": \"JWT\"",
+													"};",
+													"",
+													"var aud = pm.variables.get(\"issuer_uri\")",
+													"",
+													"var jwtPayload = {",
+													"    \"aud\": aud",
+													"};",
+													"",
+													"const privKey = pmlib.rs.KEYUTIL.getKey(decodeBase64(pm.variables.get(\"rs_priv_key\")))",
+													"",
+													"//generate different key pair ",
+													"const differentEcKeypair = pmlib.rs.KEYUTIL.generateKeypair(\"EC\", \"secp256r1\")",
+													"var differentPubPem = pmlib.rs.KEYUTIL.getPEM(differentEcKeypair.pubKeyObj)",
+													"",
+													"const pubKey = pmlib.rs.KEYUTIL.getKey(differentPubPem)",
+													"",
+													"// decode PEM to object",
+													"const jwkPub = pmlib.rs.KEYUTIL.getJWK(pubKey);",
+													"",
+													"console.log(jwkPub)",
+													"",
+													"//update header",
+													"addKid(header, jwkPub)",
+													"",
+													"//update payload",
+													"addIAT(jwtPayload);",
+													"addNonce(jwtPayload, nonce);",
+													"addExpTime(jwtPayload, jwtExpireTimeSec)",
+													"jwtPayload.iss = authClientId",
 													"",
 													"const jws = pmlib.rs.jws.JWS.sign(header.alg, header, jwtPayload, privKey);",
 													"",
@@ -1655,7 +1864,7 @@
 											}
 										},
 										"url": {
-											"raw": "{{pre_auth_endpoint}}?pin={{pin}}&type={{type}}&user_id={{user}}",
+											"raw": "{{pre_auth_endpoint}}?pin={{pin}}&type={{type}}&user_id={{user}}&client_id={{client_id}}",
 											"host": [
 												"{{pre_auth_endpoint}}"
 											],
@@ -1671,6 +1880,10 @@
 												{
 													"key": "user_id",
 													"value": "{{user}}"
+												},
+												{
+													"key": "client_id",
+													"value": "{{client_id}}"
 												}
 											]
 										}
@@ -1711,7 +1924,7 @@
 											}
 										],
 										"url": {
-											"raw": "{{token_endpoint}}?grant_type=urn:ietf:params:oauth:grant-type:pre-authorized_code&pre-authorized_code={{pre_auth_code}}&user_pin={{pin}}",
+											"raw": "{{token_endpoint}}?grant_type=urn:ietf:params:oauth:grant-type:pre-authorized_code&pre-authorized_code={{pre_auth_code}}&user_pin={{pin}}&client_id={{client_id}}",
 											"host": [
 												"{{token_endpoint}}"
 											],
@@ -1727,6 +1940,10 @@
 												{
 													"key": "user_pin",
 													"value": "{{pin}}"
+												},
+												{
+													"key": "client_id",
+													"value": "{{client_id}}"
 												}
 											]
 										}
@@ -1747,6 +1964,9 @@
 													"console.log(\"Start get VC - check credential type test\");",
 													"",
 													"var jwtExpireTimeSec =  parseInt(pm.variables.get(\"jwt_exp_sec\"));",
+													"var jwtSignAlg = pm.collectionVariables.get(\"jwt_sign_alg\")",
+													"var authClientId = pm.variables.get(\"client_id\")",
+													"",
 													"var nonce =  Math.floor(Math.random() *1000000).toString(36);",
 													"const currentTimeSec =  Math.floor(Date.now() / 1000);",
 													"",
@@ -1791,7 +2011,7 @@
 													"}",
 													"",
 													"var header = {",
-													"    \"alg\": \"ES256\",",
+													"    \"alg\": jwtSignAlg,",
 													"    \"typ\": \"JWT\"",
 													"};",
 													"",
@@ -1818,7 +2038,7 @@
 													"addIAT(jwtPayload);",
 													"addNonce(jwtPayload, nonce);",
 													"addExpTime(jwtPayload, jwtExpireTimeSec)",
-													"jwtPayload.iss = header.kid",
+													"jwtPayload.iss = authClientId",
 													"",
 													"//const jws = pmlib.jwtSign(jwk, jwtPayload, header, jwtExpireTimeSec, \"ES256\");",
 													"",
@@ -1937,7 +2157,7 @@
 											}
 										},
 										"url": {
-											"raw": "{{pre_auth_endpoint}}?pin={{pin}}&type={{type}}&user_id={{user}}",
+											"raw": "{{pre_auth_endpoint}}?pin={{pin}}&type={{type}}&user_id={{user}}&client_id={{client_id}}",
 											"host": [
 												"{{pre_auth_endpoint}}"
 											],
@@ -1953,6 +2173,10 @@
 												{
 													"key": "user_id",
 													"value": "{{user}}"
+												},
+												{
+													"key": "client_id",
+													"value": "{{client_id}}"
 												}
 											]
 										}
@@ -2002,7 +2226,7 @@
 											}
 										],
 										"url": {
-											"raw": "{{token_endpoint}}?grant_type=urn:ietf:params:oauth:grant-type:pre-authorized_code&pre-authorized_code={{pre_auth_code}}&user_pin={{pin}}",
+											"raw": "{{token_endpoint}}?grant_type=urn:ietf:params:oauth:grant-type:pre-authorized_code&pre-authorized_code={{pre_auth_code}}&user_pin={{pin}}&client_id={{client_id}}",
 											"host": [
 												"{{token_endpoint}}"
 											],
@@ -2018,6 +2242,10 @@
 												{
 													"key": "user_pin",
 													"value": "{{pin}}"
+												},
+												{
+													"key": "client_id",
+													"value": "{{client_id}}"
 												}
 											]
 										}
@@ -2073,7 +2301,7 @@
 											}
 										],
 										"url": {
-											"raw": "{{token_endpoint}}?grant_type=urn:ietf:params:oauth:grant-type:pre-authorized&pre-authorized_code={{pre_auth_code}}&user_pin={{pin}}",
+											"raw": "{{token_endpoint}}?grant_type=urn:ietf:params:oauth:grant-type:pre-authorized&pre-authorized_code={{pre_auth_code}}&user_pin={{pin}}&client_id={{client_id}}",
 											"host": [
 												"{{token_endpoint}}"
 											],
@@ -2089,6 +2317,10 @@
 												{
 													"key": "user_pin",
 													"value": "{{pin}}"
+												},
+												{
+													"key": "client_id",
+													"value": "{{client_id}}"
 												}
 											]
 										}
@@ -2130,7 +2362,7 @@
 											}
 										],
 										"url": {
-											"raw": "{{token_endpoint}}?grant_type=urn:ietf:params:oauth:grant-type:pre-authorized_code&pre-authorized_code={{pre_auth_code}}",
+											"raw": "{{token_endpoint}}?grant_type=urn:ietf:params:oauth:grant-type:pre-authorized_code&pre-authorized_code={{pre_auth_code}}&client_id={{client_id}}",
 											"host": [
 												"{{token_endpoint}}"
 											],
@@ -2142,6 +2374,10 @@
 												{
 													"key": "pre-authorized_code",
 													"value": "{{pre_auth_code}}"
+												},
+												{
+													"key": "client_id",
+													"value": "{{client_id}}"
 												}
 											]
 										}
@@ -2192,7 +2428,7 @@
 											}
 										],
 										"url": {
-											"raw": "{{token_endpoint}}?grant_type=urn:ietf:params:oauth:grant-type:pre-authorized_code&pre-authorized_code={{pre_auth_code}}&user_pin=0001",
+											"raw": "{{token_endpoint}}?grant_type=urn:ietf:params:oauth:grant-type:pre-authorized_code&pre-authorized_code={{pre_auth_code}}&user_pin=0001&client_id={{client_id}}",
 											"host": [
 												"{{token_endpoint}}"
 											],
@@ -2208,6 +2444,10 @@
 												{
 													"key": "user_pin",
 													"value": "0001"
+												},
+												{
+													"key": "client_id",
+													"value": "{{client_id}}"
 												}
 											]
 										}
@@ -2283,7 +2523,7 @@
 											}
 										},
 										"url": {
-											"raw": "{{pre_auth_endpoint}}?pin=1234&type={{type}}&user_id={{user}}",
+											"raw": "{{pre_auth_endpoint}}?pin=1234&type={{type}}&user_id={{user}}&client_id={{client_id}}",
 											"host": [
 												"{{pre_auth_endpoint}}"
 											],
@@ -2299,6 +2539,10 @@
 												{
 													"key": "user_id",
 													"value": "{{user}}"
+												},
+												{
+													"key": "client_id",
+													"value": "{{client_id}}"
 												}
 											]
 										}
@@ -2349,7 +2593,7 @@
 											}
 										],
 										"url": {
-											"raw": "{{token_endpoint}}?grant_type=urn:ietf:params:oauth:grant-type:pre-authorized_code&pre-authorized_code=unknown&user_pin={{pin}}",
+											"raw": "{{token_endpoint}}?grant_type=urn:ietf:params:oauth:grant-type:pre-authorized_code&pre-authorized_code=unknown&user_pin={{pin}}&client_id={{client_id}}",
 											"host": [
 												"{{token_endpoint}}"
 											],
@@ -2365,6 +2609,175 @@
 												{
 													"key": "user_pin",
 													"value": "{{pin}}"
+												},
+												{
+													"key": "client_id",
+													"value": "{{client_id}}"
+												}
+											]
+										}
+									},
+									"response": []
+								}
+							],
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											"pm.sendRequest(pm.variables.get(\"PreauthCoderequest\"))"
+										]
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											""
+										]
+									}
+								}
+							]
+						},
+						{
+							"name": "test auth clientid",
+							"item": [
+								{
+									"name": "Get Pre auth Token With PIN",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"// Token requests are expected to return a `200 Success` response code. Any",
+													"// other response code should trigger a failure.",
+													"pm.test(\"must return `200 Success` status\", function () {",
+													"    pm.response.to.have.status(200);",
+													"})",
+													"",
+													"pm.collectionVariables.set(\"pre_auth_code\", pm.response.text())",
+													"",
+													"pm.variables.set(\"PreauthCoderequest\", pm.request)",
+													""
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													"console.log(\"GET Pre_auth code\")"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{pre_auth_endpoint}}?pin=1234&type={{type}}&user_id={{user}}&client_id={{client_id}}",
+											"host": [
+												"{{pre_auth_endpoint}}"
+											],
+											"query": [
+												{
+													"key": "pin",
+													"value": "1234"
+												},
+												{
+													"key": "type",
+													"value": "{{type}}"
+												},
+												{
+													"key": "user_id",
+													"value": "{{user}}"
+												},
+												{
+													"key": "client_id",
+													"value": "{{client_id}}"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "invalidClientId",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Status code is 401\", function () {",
+													"    pm.response.to.have.status(401);",
+													"});",
+													"",
+													"pm.test(\"Error response - invalid client\", function () {",
+													"    var jsonData = pm.response.json();",
+													"    pm.expect(jsonData.error).to.eql(\"invalid_client\")",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													"console.log(\"Invalid preauth code\")"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"protocolProfileBehavior": {
+										"disabledSystemHeaders": {
+											"user-agent": true
+										}
+									},
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/x-www-form-urlencoded",
+												"type": "default"
+											}
+										],
+										"url": {
+											"raw": "{{token_endpoint}}?grant_type=urn:ietf:params:oauth:grant-type:pre-authorized_code&pre-authorized_code=unknown&user_pin={{pin}}&client_id=invalid",
+											"host": [
+												"{{token_endpoint}}"
+											],
+											"query": [
+												{
+													"key": "grant_type",
+													"value": "urn:ietf:params:oauth:grant-type:pre-authorized_code"
+												},
+												{
+													"key": "pre-authorized_code",
+													"value": "unknown"
+												},
+												{
+													"key": "user_pin",
+													"value": "{{pin}}"
+												},
+												{
+													"key": "client_id",
+													"value": "invalid"
 												}
 											]
 										}
@@ -2440,7 +2853,7 @@
 											}
 										},
 										"url": {
-											"raw": "{{pre_auth_endpoint}}?pin={{pin}}&type={{type}}&user_id={{user}}",
+											"raw": "{{pre_auth_endpoint}}?pin={{pin}}&type={{type}}&user_id={{user}}&client_id={{client_id}}",
 											"host": [
 												"{{pre_auth_endpoint}}"
 											],
@@ -2456,6 +2869,10 @@
 												{
 													"key": "user_id",
 													"value": "{{user}}"
+												},
+												{
+													"key": "client_id",
+													"value": "{{client_id}}"
 												}
 											]
 										}
@@ -2505,7 +2922,7 @@
 											}
 										],
 										"url": {
-											"raw": "{{token_endpoint}}?grant_type=urn:ietf:params:oauth:grant-type:pre-authorized_code&pre-authorized_code={{pre_auth_code}}&user_pin={{pin}}",
+											"raw": "{{token_endpoint}}?grant_type=urn:ietf:params:oauth:grant-type:pre-authorized_code&pre-authorized_code={{pre_auth_code}}&user_pin={{pin}}&client_id={{client_id}}",
 											"host": [
 												"{{token_endpoint}}"
 											],
@@ -2521,6 +2938,10 @@
 												{
 													"key": "user_pin",
 													"value": "{{pin}}"
+												},
+												{
+													"key": "client_id",
+													"value": "{{client_id}}"
 												}
 											]
 										}
@@ -2571,7 +2992,7 @@
 											}
 										],
 										"url": {
-											"raw": "{{token_endpoint}}?grant_type=urn:ietf:params:oauth:grant-type:pre-authorized_code&pre-authorized_code={{pre_auth_code}}&user_pin={{pin}}",
+											"raw": "{{token_endpoint}}?grant_type=urn:ietf:params:oauth:grant-type:pre-authorized_code&pre-authorized_code={{pre_auth_code}}&user_pin={{pin}}&client_id={{client_id}}",
 											"host": [
 												"{{token_endpoint}}"
 											],
@@ -2587,6 +3008,10 @@
 												{
 													"key": "user_pin",
 													"value": "{{pin}}"
+												},
+												{
+													"key": "client_id",
+													"value": "{{client_id}}"
 												}
 											]
 										}
@@ -2642,7 +3067,7 @@
 											}
 										},
 										"url": {
-											"raw": "{{pre_auth_endpoint}}?pin=1234&type={{type}}&user_id={{user}}",
+											"raw": "{{pre_auth_endpoint}}?pin=1234&type={{type}}&user_id={{user}}&client_id={{client_id}}",
 											"host": [
 												"{{pre_auth_endpoint}}"
 											],
@@ -2658,6 +3083,10 @@
 												{
 													"key": "user_id",
 													"value": "{{user}}"
+												},
+												{
+													"key": "client_id",
+													"value": "{{client_id}}"
 												}
 											]
 										}
@@ -2714,7 +3143,7 @@
 											}
 										],
 										"url": {
-											"raw": "{{token_endpoint}}?grant_type=urn:ietf:params:oauth:grant-type:pre-authorized_code&pre-authorized_code=unknown&user_pin={{pin}}",
+											"raw": "{{token_endpoint}}?grant_type=urn:ietf:params:oauth:grant-type:pre-authorized_code&pre-authorized_code=unknown&user_pin={{pin}}&client_id={{client_id}}",
 											"host": [
 												"{{token_endpoint}}"
 											],
@@ -2730,6 +3159,10 @@
 												{
 													"key": "user_pin",
 													"value": "{{pin}}"
+												},
+												{
+													"key": "client_id",
+													"value": "{{client_id}}"
 												}
 											]
 										}
@@ -2805,7 +3238,7 @@
 											}
 										},
 										"url": {
-											"raw": "{{pre_auth_endpoint}}?type={{type}}&user_id={{user}}",
+											"raw": "{{pre_auth_endpoint}}?type={{type}}&user_id={{user}}&client_id={{client_id}}",
 											"host": [
 												"{{pre_auth_endpoint}}"
 											],
@@ -2817,6 +3250,10 @@
 												{
 													"key": "user_id",
 													"value": "{{user}}"
+												},
+												{
+													"key": "client_id",
+													"value": "{{client_id}}"
 												}
 											]
 										}
@@ -2867,7 +3304,7 @@
 											}
 										],
 										"url": {
-											"raw": "{{token_endpoint}}?grant_type=urn:ietf:params:oauth:grant-type:pre-authorized_code&pre-authorized_code={{pre_auth_code}}&user_pin=0001",
+											"raw": "{{token_endpoint}}?grant_type=urn:ietf:params:oauth:grant-type:pre-authorized_code&pre-authorized_code={{pre_auth_code}}&user_pin=0001&client_id={{client_id}}",
 											"host": [
 												"{{token_endpoint}}"
 											],
@@ -2883,6 +3320,10 @@
 												{
 													"key": "user_pin",
 													"value": "0001"
+												},
+												{
+													"key": "client_id",
+													"value": "{{client_id}}"
 												}
 											]
 										}
@@ -2958,7 +3399,7 @@
 											}
 										},
 										"url": {
-											"raw": "{{pre_auth_endpoint}}?type={{type}}&user_id={{user}}",
+											"raw": "{{pre_auth_endpoint}}?type={{type}}&user_id={{user}}&client_id={{client_id}}",
 											"host": [
 												"{{pre_auth_endpoint}}"
 											],
@@ -2970,6 +3411,10 @@
 												{
 													"key": "user_id",
 													"value": "{{user}}"
+												},
+												{
+													"key": "client_id",
+													"value": "{{client_id}}"
 												}
 											]
 										}
@@ -3020,7 +3465,7 @@
 											}
 										],
 										"url": {
-											"raw": "{{token_endpoint}}?grant_type=urn:ietf:params:oauth:grant-type:pre-authorized_code&pre-authorized_code={{pre_auth_code}}&user_pin=0001",
+											"raw": "{{token_endpoint}}?grant_type=urn:ietf:params:oauth:grant-type:pre-authorized_code&pre-authorized_code={{pre_auth_code}}&user_pin=0001&client_id={{client_id}}",
 											"host": [
 												"{{token_endpoint}}"
 											],
@@ -3036,6 +3481,10 @@
 												{
 													"key": "user_pin",
 													"value": "0001"
+												},
+												{
+													"key": "client_id",
+													"value": "{{client_id}}"
 												}
 											]
 										}
@@ -3111,7 +3560,7 @@
 											}
 										},
 										"url": {
-											"raw": "{{pre_auth_endpoint}}?type={{type}}&user_id={{user}}",
+											"raw": "{{pre_auth_endpoint}}?type={{type}}&user_id={{user}}&client_id={{client_id}}",
 											"host": [
 												"{{pre_auth_endpoint}}"
 											],
@@ -3123,6 +3572,10 @@
 												{
 													"key": "user_id",
 													"value": "{{user}}"
+												},
+												{
+													"key": "client_id",
+													"value": "{{client_id}}"
 												}
 											]
 										}
@@ -3173,7 +3626,7 @@
 											}
 										],
 										"url": {
-											"raw": "{{token_endpoint}}?grant_type=urn:ietf:params:oauth:grant-type:pre-authorized_code&pre-authorized_code={{pre_auth_code}}",
+											"raw": "{{token_endpoint}}?grant_type=urn:ietf:params:oauth:grant-type:pre-authorized_code&pre-authorized_code={{pre_auth_code}}&client_id={{client_id}}",
 											"host": [
 												"{{token_endpoint}}"
 											],
@@ -3185,6 +3638,10 @@
 												{
 													"key": "pre-authorized_code",
 													"value": "{{pre_auth_code}}"
+												},
+												{
+													"key": "client_id",
+													"value": "{{client_id}}"
 												},
 												{
 													"key": "pin",
@@ -3259,7 +3716,7 @@
 											}
 										},
 										"url": {
-											"raw": "{{pre_auth_endpoint}}?pin={{pin}}&type={{type}}&user_id={{user}}",
+											"raw": "{{pre_auth_endpoint}}?pin={{pin}}&type={{type}}&user_id={{user}}&client_id={{client_id}}",
 											"host": [
 												"{{pre_auth_endpoint}}"
 											],
@@ -3275,6 +3732,10 @@
 												{
 													"key": "user_id",
 													"value": "{{user}}"
+												},
+												{
+													"key": "client_id",
+													"value": "{{client_id}}"
 												}
 											]
 										}
@@ -3315,7 +3776,7 @@
 											}
 										],
 										"url": {
-											"raw": "{{token_endpoint}}?grant_type=urn:ietf:params:oauth:grant-type:pre-authorized_code&pre-authorized_code={{pre_auth_code}}&user_pin={{pin}}",
+											"raw": "{{token_endpoint}}?grant_type=urn:ietf:params:oauth:grant-type:pre-authorized_code&pre-authorized_code={{pre_auth_code}}&user_pin={{pin}}&client_id={{client_id}}",
 											"host": [
 												"{{token_endpoint}}"
 											],
@@ -3331,6 +3792,10 @@
 												{
 													"key": "user_pin",
 													"value": "{{pin}}"
+												},
+												{
+													"key": "client_id",
+													"value": "{{client_id}}"
 												}
 											]
 										}
@@ -3351,6 +3816,9 @@
 													"console.log(\"Start get JWT - success\");",
 													"",
 													"var jwtExpireTimeSec =  parseInt(pm.variables.get(\"jwt_exp_sec\"));",
+													"var jwtSignAlg = pm.collectionVariables.get(\"jwt_sign_alg\")",
+													"var authClientId = pm.variables.get(\"client_id\")",
+													"",
 													"var nonce =  Math.floor(Math.random() *1000000).toString(36);",
 													"const currentTimeSec =  Math.floor(Date.now() / 1000);",
 													"",
@@ -3395,7 +3863,7 @@
 													"}",
 													"",
 													"var header = {",
-													"    \"alg\": \"ES256\",",
+													"    \"alg\": jwtSignAlg,",
 													"    \"typ\": \"JWT\"",
 													"};",
 													"",
@@ -3422,7 +3890,7 @@
 													"addIAT(jwtPayload);",
 													"addNonce(jwtPayload, nonce);",
 													"addExpTime(jwtPayload, jwtExpireTimeSec)",
-													"jwtPayload.iss = header.kid",
+													"jwtPayload.iss = authClientId",
 													"",
 													"//const jws = pmlib.jwtSign(jwk, jwtPayload, header, jwtExpireTimeSec, \"ES256\");",
 													"",
@@ -3487,6 +3955,22 @@
 													"",
 													"const pubKey = pmlib.rs.KEYUTIL.getKey(decodeBase64(pm.variables.get(\"rs_pub_key\")))",
 													"const jwkPub = pmlib.rs.KEYUTIL.getJWK(pubKey);",
+													"",
+													"pm.test(\"JWT header contain type property\", function () {",
+													"    pm.expect(jwsParsed.headerObj).to.have.property(\"typ\")",
+													"});",
+													"",
+													"pm.test(\"JWT header contain JWT type\", function () {",
+													"    pm.expect(jwsParsed.headerObj.typ).is.eql(\"JWT\")",
+													"})",
+													"",
+													"pm.test(\"JWT header contain alg property\", function () {",
+													"    pm.expect(jwsParsed.headerObj).to.have.property(\"alg\")",
+													"});",
+													"",
+													"pm.test(\"JWT header contain ES256 alg\", function () {",
+													"    pm.expect(jwsParsed.headerObj.alg).is.eql(\"ES256\")",
+													"})",
 													"",
 													"pm.test(\"JWT payload contain vc field\", function () {",
 													"    pm.expect(jwsParsed.payloadObj).to.have.property(\"vc\")",
@@ -3610,7 +4094,7 @@
 											}
 										},
 										"url": {
-											"raw": "{{pre_auth_endpoint}}?pin={{pin}}&type={{extType}}&user_id={{user}}",
+											"raw": "{{pre_auth_endpoint}}?pin={{pin}}&type={{extType}}&user_id={{user}}&client_id={{client_id}}",
 											"host": [
 												"{{pre_auth_endpoint}}"
 											],
@@ -3626,6 +4110,10 @@
 												{
 													"key": "user_id",
 													"value": "{{user}}"
+												},
+												{
+													"key": "client_id",
+													"value": "{{client_id}}"
 												}
 											]
 										}
@@ -3666,7 +4154,7 @@
 											}
 										],
 										"url": {
-											"raw": "{{token_endpoint}}?grant_type=urn:ietf:params:oauth:grant-type:pre-authorized_code&pre-authorized_code={{pre_auth_code}}&user_pin={{pin}}",
+											"raw": "{{token_endpoint}}?grant_type=urn:ietf:params:oauth:grant-type:pre-authorized_code&pre-authorized_code={{pre_auth_code}}&user_pin={{pin}}&client_id={{client_id}}",
 											"host": [
 												"{{token_endpoint}}"
 											],
@@ -3682,6 +4170,10 @@
 												{
 													"key": "user_pin",
 													"value": "{{pin}}"
+												},
+												{
+													"key": "client_id",
+													"value": "{{client_id}}"
 												}
 											]
 										}
@@ -3702,6 +4194,9 @@
 													"console.log(\"Start get VC - check terms of use test\");",
 													"",
 													"var jwtExpireTimeSec =  parseInt(pm.variables.get(\"jwt_exp_sec\"));",
+													"var jwtSignAlg = pm.collectionVariables.get(\"jwt_sign_alg\")",
+													"var authClientId = pm.variables.get(\"client_id\")",
+													"",
 													"var nonce =  Math.floor(Math.random() *1000000).toString(36);",
 													"const currentTimeSec =  Math.floor(Date.now() / 1000);",
 													"",
@@ -3746,7 +4241,7 @@
 													"}",
 													"",
 													"var header = {",
-													"    \"alg\": \"ES256\",",
+													"    \"alg\": jwtSignAlg,",
 													"    \"typ\": \"JWT\"",
 													"};",
 													"",
@@ -3773,7 +4268,7 @@
 													"addIAT(jwtPayload);",
 													"addNonce(jwtPayload, nonce);",
 													"addExpTime(jwtPayload, jwtExpireTimeSec)",
-													"jwtPayload.iss = header.kid",
+													"jwtPayload.iss = authClientId",
 													"",
 													"//const jws = pmlib.jwtSign(jwk, jwtPayload, header, jwtExpireTimeSec, \"ES256\");",
 													"",
@@ -3888,6 +4383,9 @@
 													"console.log(\"Start get VC - check credential type test\");",
 													"",
 													"var jwtExpireTimeSec =  parseInt(pm.variables.get(\"jwt_exp_sec\"));",
+													"var jwtSignAlg = pm.collectionVariables.get(\"jwt_sign_alg\")",
+													"var authClientId = pm.variables.get(\"client_id\")",
+													"",
 													"var nonce =  Math.floor(Math.random() *1000000).toString(36);",
 													"const currentTimeSec =  Math.floor(Date.now() / 1000);",
 													"",
@@ -3932,7 +4430,7 @@
 													"}",
 													"",
 													"var header = {",
-													"    \"alg\": \"ES256\",",
+													"    \"alg\": jwtSignAlg,",
 													"    \"typ\": \"JWT\"",
 													"};",
 													"",
@@ -3959,7 +4457,7 @@
 													"addIAT(jwtPayload);",
 													"addNonce(jwtPayload, nonce);",
 													"addExpTime(jwtPayload, jwtExpireTimeSec)",
-													"jwtPayload.iss = header.kid",
+													"jwtPayload.iss = authClientId",
 													"",
 													"//const jws = pmlib.jwtSign(jwk, jwtPayload, header, jwtExpireTimeSec, \"ES256\");",
 													"",
@@ -4106,6 +4604,9 @@
 													"console.log(\"Start get VC - check evidence test\");",
 													"",
 													"var jwtExpireTimeSec =  parseInt(pm.variables.get(\"jwt_exp_sec\"));",
+													"var jwtSignAlg = pm.collectionVariables.get(\"jwt_sign_alg\")",
+													"var authClientId = pm.variables.get(\"client_id\")",
+													"",
 													"var nonce =  Math.floor(Math.random() *1000000).toString(36);",
 													"const currentTimeSec =  Math.floor(Date.now() / 1000);",
 													"",
@@ -4150,7 +4651,7 @@
 													"}",
 													"",
 													"var header = {",
-													"    \"alg\": \"ES256\",",
+													"    \"alg\": jwtSignAlg,",
 													"    \"typ\": \"JWT\"",
 													"};",
 													"",
@@ -4177,7 +4678,7 @@
 													"addIAT(jwtPayload);",
 													"addNonce(jwtPayload, nonce);",
 													"addExpTime(jwtPayload, jwtExpireTimeSec)",
-													"jwtPayload.iss = header.kid",
+													"jwtPayload.iss = authClientId",
 													"",
 													"//const jws = pmlib.jwtSign(jwk, jwtPayload, header, jwtExpireTimeSec, \"ES256\");",
 													"",
@@ -4305,6 +4806,11 @@
 		{
 			"key": "current_vc_jwt",
 			"value": ""
+		},
+		{
+			"key": "jwt_sign_alg",
+			"value": "ES256",
+			"type": "default"
 		}
 	]
 }
