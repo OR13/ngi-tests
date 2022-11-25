@@ -1,0 +1,943 @@
+{
+	"info": {
+		"_postman_id": "6d4ffcaa-e6df-4d49-955b-ebf4d382f08b",
+		"name": "NGI verification flow",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "E2E tests",
+			"item": [
+				{
+					"name": "wallet tests",
+					"item": [
+						{
+							"name": "obtain VP",
+							"item": [
+								{
+									"name": "obtain VP success",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"const sdk = require('postman-collection');",
+													"const querystring = require('querystring');",
+													"",
+													"eval(pm.globals.get('pmlib_code'));",
+													"",
+													"pm.test(\"Status code is 302\", function () {",
+													"    pm.response.to.have.status(302);",
+													"});",
+													"",
+													"pm.test(\"Location is present\", function () {",
+													"    pm.response.to.have.header(\"Location\");",
+													"});",
+													"",
+													"var location = pm.response.headers.get(\"Location\")",
+													"var redirectUrl = new sdk.Url(location)",
+													"var queryElements = querystring.parse(redirectUrl.getQueryString())",
+													"var requestQueryElements = querystring.parse(pm.request.url.getQueryString())",
+													"",
+													"pm.test(\"Redirect URL contain proper host and path\", function () {",
+													"    var actualRedirectHost = new sdk.Url({ protocol: redirectUrl.protocol, host: redirectUrl.getHost(), path: redirectUrl.getPath() })",
+													"    pm.expect(pm.variables.get(\"rp_redirect_uri\")).is.equal(actualRedirectHost.toString())",
+													"});",
+													"",
+													"pm.test(\"Redirect URL contain non empty presentation_submission\", function () {",
+													"",
+													"    pm.expect(queryElements.presentation_submission).is.not.empty",
+													"});",
+													"",
+													"pm.test(\"Redirect URL contain non empty VP\", function () {",
+													"    pm.expect(queryElements.vp_token).is.not.empty",
+													"});",
+													"",
+													"var vp = pmlib.rs.jws.JWS.parse(queryElements.vp_token);",
+													"",
+													"pm.test(\"Check if VP token is a JWT\", function () {",
+													"    pm.expect(vp.payloadObj).to.have.property(\"vp\")",
+													"    pm.expect(vp).is.not.empty",
+													"    pm.expect(vp.payloadObj).is.not.empty",
+													"});",
+													"",
+													"pm.test(\"Check VP contains ID field\", function () {",
+													"    pm.expect(vp.payloadObj.vp).to.have.property(\"id\")",
+													"    pm.expect(vp.payloadObj.vp.id).is.not.empty",
+													"});",
+													"",
+													"pm.test(\"Check VP contain nonce field with proper value\", function () {",
+													"    pm.expect(vp.payloadObj.vp).to.have.property(\"nonce\")",
+													"    pm.expect(vp.payloadObj.vp.nonce).is.equal(requestQueryElements.nonce)",
+													"});",
+													"",
+													"pm.test(\"Check VP contain audience field with proper value\", function () {",
+													"    pm.expect(vp.payloadObj.vp).to.have.property(\"audience\")",
+													"    pm.expect(vp.payloadObj.vp.audience).is.equal(requestQueryElements.client_id)",
+													"});",
+													"",
+													"pm.test(\"Check VP contain holder field key as jwk\", function () {",
+													"    pm.expect(vp.payloadObj.vp).to.have.property(\"holder\")",
+													"    pm.expect(vp.payloadObj.vp.holder).is.not.empty",
+													"    pm.expect(vp.payloadObj.vp.holder).contain(\"did:jwk\")",
+													"});",
+													"",
+													"pm.test(\"Check VP contain type field\", function () {",
+													"    pm.expect(vp.payloadObj.vp).to.have.property(\"type\")",
+													"    pm.expect(vp.payloadObj.vp.type).is.be.an(\"array\")",
+													"",
+													"    pm.expect(vp.payloadObj.vp.type).to.include(\"VerifiablePresentation\");",
+													"    pm.expect(vp.payloadObj.vp.type).to.include(\"OIDC4VP\",\"VC should contain [VerifiablePresentation, OIDC4VP] types\");",
+													"});",
+													"",
+													"pm.test(\"Check VP contain verifiableCredential field\", function () {",
+													"    pm.expect(vp.payloadObj.vp).to.have.property(\"verifiableCredential\")",
+													"    pm.expect(vp.payloadObj.vp.verifiableCredential).is.not.empty",
+													"    pm.expect(vp.payloadObj.vp.verifiableCredential).is.be.an(\"array\")",
+													"});",
+													"",
+													"pm.test(\"Check VP contain VC\", function () {",
+													"    pm.expect(vp.payloadObj.vp.verifiableCredential[0]).to.have.property(\"type\")",
+													"    pm.expect(vp.payloadObj.vp.verifiableCredential[0].type).is.be.an(\"array\")",
+													"    pm.expect(vp.payloadObj.vp.verifiableCredential[0].type).to.include(\"VerifiableCredential\");",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"protocolProfileBehavior": {
+										"followRedirects": false
+									},
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{wallet_url}}/authorize?response_type=vp_token&client_id={{rp_uri}}&redirect_uri={{rp_redirect_uri}}&presentation_definition_url={{presentation_definition_url}}&nonce=abcdef12345",
+											"host": [
+												"{{wallet_url}}"
+											],
+											"path": [
+												"authorize"
+											],
+											"query": [
+												{
+													"key": "response_type",
+													"value": "vp_token"
+												},
+												{
+													"key": "client_id",
+													"value": "{{rp_uri}}"
+												},
+												{
+													"key": "redirect_uri",
+													"value": "{{rp_redirect_uri}}"
+												},
+												{
+													"key": "presentation_definition_url",
+													"value": "{{presentation_definition_url}}"
+												},
+												{
+													"key": "nonce",
+													"value": "abcdef12345"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "obtain VP with trust methods success",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"const sdk = require('postman-collection');",
+													"const querystring = require('querystring');",
+													"",
+													"pm.test(\"Status code is 302\", function () {",
+													"    pm.response.to.have.status(302);",
+													"});",
+													"",
+													"pm.test(\"Location is present\", function () {",
+													"    pm.response.to.have.header(\"Location\");",
+													"});",
+													"",
+													"var location = pm.response.headers.get(\"Location\")",
+													"var redirectUrl = new sdk.Url(location)",
+													"var queryElements = querystring.parse(redirectUrl.getQueryString())",
+													"",
+													"pm.test(\"Redirect URL contain proper host and path\", function () {",
+													"    var actualRedirectHost = new sdk.Url({ protocol: redirectUrl.protocol, host: redirectUrl.getHost(), path: redirectUrl.getPath() })",
+													"    pm.expect(pm.variables.get(\"rp_redirect_uri\")).is.equal(actualRedirectHost.toString())",
+													"});",
+													"",
+													"pm.test(\"Redirect URL contain non empty presentation_submission\", function () {",
+													"    pm.expect(queryElements.presentation_submission).is.not.empty",
+													"});",
+													"",
+													"pm.test(\"Redirect URL contain non empty VP\", function () {",
+													"    pm.expect(queryElements.vp_token).is.not.empty",
+													"});",
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"protocolProfileBehavior": {
+										"followRedirects": false
+									},
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{wallet_url}}/authorize?response_type=vp_token&client_id={{rp_uri}}&redirect_uri={{rp_redirect_uri}}&presentation_definition_url={{presentation_definition_url}}&nonce=abcdef12345&trust_methods_supported=[{\"type\": \"https://train.trust-scheme.de/info\",“trustScheme\": [\"eu.ngi.train.trustscheme.de\", \"us.ngi.train.trustscheme.de\"]}]",
+											"host": [
+												"{{wallet_url}}"
+											],
+											"path": [
+												"authorize"
+											],
+											"query": [
+												{
+													"key": "response_type",
+													"value": "vp_token"
+												},
+												{
+													"key": "client_id",
+													"value": "{{rp_uri}}"
+												},
+												{
+													"key": "redirect_uri",
+													"value": "{{rp_redirect_uri}}"
+												},
+												{
+													"key": "presentation_definition_url",
+													"value": "{{presentation_definition_url}}"
+												},
+												{
+													"key": "nonce",
+													"value": "abcdef12345"
+												},
+												{
+													"key": "trust_methods_supported",
+													"value": "[{\"type\": \"https://train.trust-scheme.de/info\",“trustScheme\": [\"eu.ngi.train.trustscheme.de\", \"us.ngi.train.trustscheme.de\"]}]"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "obtain VP  - RP not trusted  - user not continue processing",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Status code is 400\", function () {",
+													"    pm.response.to.have.status(400);",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"protocolProfileBehavior": {
+										"followRedirects": false
+									},
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{wallet_url}}/authorize?response_type=vp_token&client_id={{rp_uri}}&redirect_uri={{rp_redirect_uri}}&presentation_definition_url={{presentation_definition_url}}&nonce=abcdef12345",
+											"host": [
+												"{{wallet_url}}"
+											],
+											"path": [
+												"authorize"
+											],
+											"query": [
+												{
+													"key": "response_type",
+													"value": "vp_token"
+												},
+												{
+													"key": "client_id",
+													"value": "{{rp_uri}}"
+												},
+												{
+													"key": "redirect_uri",
+													"value": "{{rp_redirect_uri}}"
+												},
+												{
+													"key": "presentation_definition_url",
+													"value": "{{presentation_definition_url}}"
+												},
+												{
+													"key": "nonce",
+													"value": "abcdef12345"
+												}
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "bad request error",
+							"item": [
+								{
+									"name": "missing response type parameter",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Status code is 400\", function () {",
+													"    pm.response.to.have.status(400);",
+													"});",
+													"",
+													"pm.test(\"Error response - invalid request\", function () {",
+													"    var jsonData = pm.response.json();",
+													"    pm.expect(jsonData.error).to.eql(\"invalid_request\")",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"protocolProfileBehavior": {
+										"followRedirects": false
+									},
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{wallet_url}}/authorize?client_id={{rp_uri}}&redirect_uri={{rp_redirect_uri}}&presentation_definition_url={{presentation_definition_url}}&nonce=abcdef12345",
+											"host": [
+												"{{wallet_url}}"
+											],
+											"path": [
+												"authorize"
+											],
+											"query": [
+												{
+													"key": "client_id",
+													"value": "{{rp_uri}}"
+												},
+												{
+													"key": "redirect_uri",
+													"value": "{{rp_redirect_uri}}"
+												},
+												{
+													"key": "presentation_definition_url",
+													"value": "{{presentation_definition_url}}"
+												},
+												{
+													"key": "nonce",
+													"value": "abcdef12345"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "response type parameter - unknown value",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Status code is 400\", function () {",
+													"    pm.response.to.have.status(400);",
+													"});",
+													"",
+													"pm.test(\"Error response - invalid request\", function () {",
+													"    var jsonData = pm.response.json();",
+													"    pm.expect(jsonData.error).to.eql(\"invalid_request\")",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"protocolProfileBehavior": {
+										"followRedirects": false
+									},
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{wallet_url}}/authorize?response_type=unknown&client_id={{rp_uri}}&redirect_uri={{rp_redirect_uri}}&presentation_definition_url={{presentation_definition_url}}&nonce=abcdef12345&trust_methods_supported= [{“trustScheme\": [\"eu.ngi.train.trustscheme.de\", \"us.ngi.train.trustscheme.de\"]}]",
+											"host": [
+												"{{wallet_url}}"
+											],
+											"path": [
+												"authorize"
+											],
+											"query": [
+												{
+													"key": "response_type",
+													"value": "unknown"
+												},
+												{
+													"key": "client_id",
+													"value": "{{rp_uri}}"
+												},
+												{
+													"key": "redirect_uri",
+													"value": "{{rp_redirect_uri}}"
+												},
+												{
+													"key": "presentation_definition_url",
+													"value": "{{presentation_definition_url}}"
+												},
+												{
+													"key": "nonce",
+													"value": "abcdef12345"
+												},
+												{
+													"key": "trust_methods_supported",
+													"value": " [{“trustScheme\": [\"eu.ngi.train.trustscheme.de\", \"us.ngi.train.trustscheme.de\"]}]"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "missing client_id parameter",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Status code is 400\", function () {",
+													"    pm.response.to.have.status(400);",
+													"});",
+													"",
+													"pm.test(\"Error response - invalid request\", function () {",
+													"    var jsonData = pm.response.json();",
+													"    pm.expect(jsonData.error).to.eql(\"invalid_request\")",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"protocolProfileBehavior": {
+										"followRedirects": false
+									},
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{wallet_url}}/authorize?response_type=vp_token&redirect_uri={{rp_redirect_uri}}&presentation_definition_url={{presentation_definition_url}}&nonce=abcdef12345&trust_methods_supported= [{“trustScheme\": [\"eu.ngi.train.trustscheme.de\", \"us.ngi.train.trustscheme.de\"]}]",
+											"host": [
+												"{{wallet_url}}"
+											],
+											"path": [
+												"authorize"
+											],
+											"query": [
+												{
+													"key": "response_type",
+													"value": "vp_token"
+												},
+												{
+													"key": "redirect_uri",
+													"value": "{{rp_redirect_uri}}"
+												},
+												{
+													"key": "presentation_definition_url",
+													"value": "{{presentation_definition_url}}"
+												},
+												{
+													"key": "nonce",
+													"value": "abcdef12345"
+												},
+												{
+													"key": "trust_methods_supported",
+													"value": " [{“trustScheme\": [\"eu.ngi.train.trustscheme.de\", \"us.ngi.train.trustscheme.de\"]}]"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "missing redirect_uri parameter",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Status code is 400\", function () {",
+													"    pm.response.to.have.status(400);",
+													"});",
+													"",
+													"pm.test(\"Error response - invalid request\", function () {",
+													"    var jsonData = pm.response.json();",
+													"    pm.expect(jsonData.error).to.eql(\"invalid_request\")",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"protocolProfileBehavior": {
+										"followRedirects": false
+									},
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{wallet_url}}/authorize?response_type=vp_token&client_id={{rp_uri}}&presentation_definition_url={{presentation_definition_url}}&nonce=abcdef12345&trust_methods_supported= [{“trustScheme\": [\"eu.ngi.train.trustscheme.de\", \"us.ngi.train.trustscheme.de\"]}]",
+											"host": [
+												"{{wallet_url}}"
+											],
+											"path": [
+												"authorize"
+											],
+											"query": [
+												{
+													"key": "response_type",
+													"value": "vp_token"
+												},
+												{
+													"key": "client_id",
+													"value": "{{rp_uri}}"
+												},
+												{
+													"key": "presentation_definition_url",
+													"value": "{{presentation_definition_url}}"
+												},
+												{
+													"key": "nonce",
+													"value": "abcdef12345"
+												},
+												{
+													"key": "trust_methods_supported",
+													"value": " [{“trustScheme\": [\"eu.ngi.train.trustscheme.de\", \"us.ngi.train.trustscheme.de\"]}]"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "missing nonce parameter",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Status code is 400\", function () {",
+													"    pm.response.to.have.status(400);",
+													"});",
+													"",
+													"pm.test(\"Error response - invalid request\", function () {",
+													"    var jsonData = pm.response.json();",
+													"    pm.expect(jsonData.error).to.eql(\"invalid_request\")",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"protocolProfileBehavior": {
+										"followRedirects": false
+									},
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{wallet_url}}/authorize?response_type=vp_token&client_id={{rp_uri}}&redirect_uri={{rp_redirect_uri}}&presentation_definition_url={{presentation_definition_url}}&trust_methods_supported= [{“trustScheme\": [\"eu.ngi.train.trustscheme.de\", \"us.ngi.train.trustscheme.de\"]}]",
+											"host": [
+												"{{wallet_url}}"
+											],
+											"path": [
+												"authorize"
+											],
+											"query": [
+												{
+													"key": "response_type",
+													"value": "vp_token"
+												},
+												{
+													"key": "client_id",
+													"value": "{{rp_uri}}"
+												},
+												{
+													"key": "redirect_uri",
+													"value": "{{rp_redirect_uri}}"
+												},
+												{
+													"key": "presentation_definition_url",
+													"value": "{{presentation_definition_url}}"
+												},
+												{
+													"key": "trust_methods_supported",
+													"value": " [{“trustScheme\": [\"eu.ngi.train.trustscheme.de\", \"us.ngi.train.trustscheme.de\"]}]"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "missing presentation_definition_url parameter",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Status code is 400\", function () {",
+													"    pm.response.to.have.status(400);",
+													"});",
+													"",
+													"pm.test(\"Error response - invalid request\", function () {",
+													"    var jsonData = pm.response.json();",
+													"    pm.expect(jsonData.error).to.eql(\"invalid_request\")",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"protocolProfileBehavior": {
+										"followRedirects": false
+									},
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{wallet_url}}/authorize?response_type=vp_token&client_id={{rp_uri}}&redirect_uri={{rp_redirect_uri}}&nonce=abcdef12345&trust_methods_supported= [{“trustScheme\": [\"eu.ngi.train.trustscheme.de\", \"us.ngi.train.trustscheme.de\"]}]",
+											"host": [
+												"{{wallet_url}}"
+											],
+											"path": [
+												"authorize"
+											],
+											"query": [
+												{
+													"key": "response_type",
+													"value": "vp_token"
+												},
+												{
+													"key": "client_id",
+													"value": "{{rp_uri}}"
+												},
+												{
+													"key": "redirect_uri",
+													"value": "{{rp_redirect_uri}}"
+												},
+												{
+													"key": "nonce",
+													"value": "abcdef12345"
+												},
+												{
+													"key": "trust_methods_supported",
+													"value": " [{“trustScheme\": [\"eu.ngi.train.trustscheme.de\", \"us.ngi.train.trustscheme.de\"]}]"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "unknown policy server",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Status code is 400\", function () {",
+													"    pm.response.to.have.status(400);",
+													"});",
+													"",
+													"pm.test(\"Error response - invalid request\", function () {",
+													"    var jsonData = pm.response.json();",
+													"    pm.expect(jsonData.error).to.eql(\"unknown_policy_server\")",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"protocolProfileBehavior": {
+										"followRedirects": false
+									},
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{wallet_url}}/authorize?response_type=vp_token&client_id={{rp_uri}}&redirect_uri={{rp_redirect_uri}}&presentation_definition_url=https://localhost/pr&nonce=abcdef12345&trust_methods_supported= [{“trustScheme\": [\"eu.ngi.train.trustscheme.de\", \"us.ngi.train.trustscheme.de\"]}]",
+											"host": [
+												"{{wallet_url}}"
+											],
+											"path": [
+												"authorize"
+											],
+											"query": [
+												{
+													"key": "response_type",
+													"value": "vp_token"
+												},
+												{
+													"key": "client_id",
+													"value": "{{rp_uri}}"
+												},
+												{
+													"key": "redirect_uri",
+													"value": "{{rp_redirect_uri}}"
+												},
+												{
+													"key": "presentation_definition_url",
+													"value": "https://localhost/pr"
+												},
+												{
+													"key": "nonce",
+													"value": "abcdef12345"
+												},
+												{
+													"key": "trust_methods_supported",
+													"value": " [{“trustScheme\": [\"eu.ngi.train.trustscheme.de\", \"us.ngi.train.trustscheme.de\"]}]"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "unknown policy in policy server",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Status code is 400\", function () {",
+													"    pm.response.to.have.status(400);",
+													"});",
+													"",
+													"pm.test(\"Error response - invalid request\", function () {",
+													"    var jsonData = pm.response.json();",
+													"    pm.expect(jsonData.error).to.eql(\"unknown_policy\")",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"protocolProfileBehavior": {
+										"followRedirects": false
+									},
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{wallet_url}}/authorize?response_type=vp_token&client_id={{rp_uri}}&redirect_uri={{rp_redirect_uri}}&presentation_definition_url={{presentation_definition_url}}_unknown&nonce=abcdef12345&trust_methods_supported= [{“trustScheme\": [\"eu.ngi.train.trustscheme.de\", \"us.ngi.train.trustscheme.de\"]}]",
+											"host": [
+												"{{wallet_url}}"
+											],
+											"path": [
+												"authorize"
+											],
+											"query": [
+												{
+													"key": "response_type",
+													"value": "vp_token"
+												},
+												{
+													"key": "client_id",
+													"value": "{{rp_uri}}"
+												},
+												{
+													"key": "redirect_uri",
+													"value": "{{rp_redirect_uri}}"
+												},
+												{
+													"key": "presentation_definition_url",
+													"value": "{{presentation_definition_url}}_unknown"
+												},
+												{
+													"key": "nonce",
+													"value": "abcdef12345"
+												},
+												{
+													"key": "trust_methods_supported",
+													"value": " [{“trustScheme\": [\"eu.ngi.train.trustscheme.de\", \"us.ngi.train.trustscheme.de\"]}]"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "trust methods fail - unknown type",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Status code is 400\", function () {",
+													"    pm.response.to.have.status(400);",
+													"});",
+													"",
+													"pm.test(\"Error response - invalid request\", function () {",
+													"    var jsonData = pm.response.json();",
+													"    pm.expect(jsonData.error).to.eql(\"invalid_request\")",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"protocolProfileBehavior": {
+										"followRedirects": false
+									},
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{wallet_url}}/authorize?response_type=vp_token&client_id={{rp_uri}}&redirect_uri={{rp_redirect_uri}}&presentation_definition_url={{presentation_definition_url}}&nonce=abcdef12345&trust_methods_supported=[{\"type\": \"https://unknown.trust-scheme.de/info\",“trustScheme\": [\"eu.ngi.train.trustscheme.de\", \"us.ngi.train.trustscheme.de\"]}]",
+											"host": [
+												"{{wallet_url}}"
+											],
+											"path": [
+												"authorize"
+											],
+											"query": [
+												{
+													"key": "response_type",
+													"value": "vp_token"
+												},
+												{
+													"key": "client_id",
+													"value": "{{rp_uri}}"
+												},
+												{
+													"key": "redirect_uri",
+													"value": "{{rp_redirect_uri}}"
+												},
+												{
+													"key": "presentation_definition_url",
+													"value": "{{presentation_definition_url}}"
+												},
+												{
+													"key": "nonce",
+													"value": "abcdef12345"
+												},
+												{
+													"key": "trust_methods_supported",
+													"value": "[{\"type\": \"https://unknown.trust-scheme.de/info\",“trustScheme\": [\"eu.ngi.train.trustscheme.de\", \"us.ngi.train.trustscheme.de\"]}]"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "trust methods fail - unknown scheme",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Status code is 400\", function () {",
+													"    pm.response.to.have.status(400);",
+													"});",
+													"",
+													"pm.test(\"Error response - invalid request\", function () {",
+													"    var jsonData = pm.response.json();",
+													"    pm.expect(jsonData.error).to.eql(\"invalid_request\")",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"protocolProfileBehavior": {
+										"followRedirects": false
+									},
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{wallet_url}}/authorize?response_type=vp_token&client_id={{rp_uri}}&redirect_uri={{rp_redirect_uri}}&presentation_definition_url={{presentation_definition_url}}&nonce=abcdef12345&trust_methods_supported=[{\"type\": \"https://train.trust-scheme.de/info\",“trustScheme\": [\"eu.ngi.train.trustscheme.de\", \"unknown.trustscheme.de\"]}]",
+											"host": [
+												"{{wallet_url}}"
+											],
+											"path": [
+												"authorize"
+											],
+											"query": [
+												{
+													"key": "response_type",
+													"value": "vp_token"
+												},
+												{
+													"key": "client_id",
+													"value": "{{rp_uri}}"
+												},
+												{
+													"key": "redirect_uri",
+													"value": "{{rp_redirect_uri}}"
+												},
+												{
+													"key": "presentation_definition_url",
+													"value": "{{presentation_definition_url}}"
+												},
+												{
+													"key": "nonce",
+													"value": "abcdef12345"
+												},
+												{
+													"key": "trust_methods_supported",
+													"value": "[{\"type\": \"https://train.trust-scheme.de/info\",“trustScheme\": [\"eu.ngi.train.trustscheme.de\", \"unknown.trustscheme.de\"]}]"
+												}
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						}
+					]
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "rp_redirect_uri",
+			"value": "https://localhost/callback",
+			"type": "default"
+		}
+	]
+}
