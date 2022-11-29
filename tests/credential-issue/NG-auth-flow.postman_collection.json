@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "b64f4dba-3b2e-49d8-aa60-7f44628053bf",
+		"_postman_id": "a90fa5ed-d8b1-4a2c-ad8a-992236ad69bf",
 		"name": "NGI auth flow",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -2337,161 +2337,6 @@
 													"console.log(\"pub key\" + pubKey)",
 													"// decode PEM to object",
 													"const jwk = pmlib.rs.KEYUTIL.getJWK(privKey);",
-													"const jwkPub = pmlib.rs.KEYUTIL.getJWK(pubKey);",
-													"",
-													"console.log(jwkPub)",
-													"",
-													"//update header",
-													"addKid(header, jwkPub)",
-													"",
-													"//update payload",
-													"addIAT(jwtPayload);",
-													"addNonce(jwtPayload, nonce);",
-													"addExpTime(jwtPayload, jwtExpireTimeSec)",
-													"jwtPayload.iss = authClientId",
-													"",
-													"//const jws = pmlib.jwtSign(jwk, jwtPayload, header, jwtExpireTimeSec, \"ES256\");",
-													"",
-													"const jws = pmlib.rs.jws.JWS.sign(header.alg, header, jwtPayload, privKey);",
-													"",
-													"console.log(\"Token signed\")",
-													"console.log(jws);",
-													"",
-													"pm.variables.set(\"jwt_pop\", jws);",
-													""
-												],
-												"type": "text/javascript"
-											}
-										},
-										{
-											"listen": "test",
-											"script": {
-												"exec": [
-													"pm.test(\"Status code is 200\", function () {",
-													"    pm.response.to.have.status(200);",
-													"});",
-													"",
-													"var jsonData = pm.response.json();",
-													"",
-													"pm.test(\"Obtain VC not empty result returned\", pm.expect(jsonData).is.not.empty)"
-												],
-												"type": "text/javascript"
-											}
-										}
-									],
-									"protocolProfileBehavior": {
-										"disabledSystemHeaders": {}
-									},
-									"request": {
-										"auth": {
-											"type": "bearer",
-											"bearer": [
-												{
-													"key": "token",
-													"value": "{{access_token}}",
-													"type": "string"
-												}
-											]
-										},
-										"method": "POST",
-										"header": [],
-										"body": {
-											"mode": "raw",
-											"raw": "{\n    \"type\": \"{{type}}\",\n    \"format\": \"jwt_vc\",\n    \"proof\": {\"proof_type\": \"jwt\", \"jwt\": \"{{jwt_pop}}\"}\n}",
-											"options": {
-												"raw": {
-													"language": "json"
-												}
-											}
-										},
-										"url": {
-											"raw": "{{resource_endpoint}}",
-											"host": [
-												"{{resource_endpoint}}"
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "obtain VC using es256k alg to sign",
-									"event": [
-										{
-											"listen": "prerequest",
-											"script": {
-												"exec": [
-													"require(\"crypto-js\")",
-													"//postman-util-lib",
-													"eval(pm.globals.get('pmlib_code'));",
-													"",
-													"console.log(\"Start get VC - check credential type test\");",
-													"",
-													"var jwtExpireTimeSec =  parseInt(pm.variables.get(\"jwt_exp_sec\"));",
-													"var jwtSignAlg = \"ES256\"",
-													"var authClientId = pm.variables.get(\"client_id\")",
-													"",
-													"var nonce =  Math.floor(Math.random() *1000000).toString(36);",
-													"const currentTimeSec =  Math.floor(Date.now() / 1000);",
-													"",
-													"function base64url(source) {",
-													"    // Encode in classical base64",
-													"    encodedSource = CryptoJS.enc.Base64.stringify(source);",
-													"",
-													"    // Remove padding equal characters",
-													"    encodedSource = encodedSource.replace(/=+$/, '');",
-													"",
-													"    // Replace characters according to base64url specifications",
-													"    encodedSource = encodedSource.replace(/\\+/g, '-');",
-													"    encodedSource = encodedSource.replace(/\\//g, '_');",
-													"",
-													"    return encodedSource;",
-													"}",
-													"",
-													"function decodeBase64(src) {",
-													"    arr = CryptoJS.enc.Base64.parse(src)",
-													"    return CryptoJS.enc.Utf8.stringify(arr)",
-													"}",
-													"",
-													"function addIAT(data) {",
-													"    var iat = currentTimeSec - 100;",
-													"    data.iat = iat;",
-													"    return data;",
-													"}",
-													"",
-													"function addNonce(data, nonce) {",
-													"    data.jti = nonce;",
-													"    return data;",
-													"}",
-													"",
-													"function addExpTime(data, exp) {",
-													"    data.exp = currentTimeSec + exp;",
-													"    return data;",
-													"}",
-													"",
-													"function addKid(data,jwkPub) {",
-													"    data.kid = \"did:jwk:\" + base64url(CryptoJS.enc.Utf8.parse(JSON.stringify(jwkPub)));",
-													"    return data;",
-													"}",
-													"",
-													"var header = {",
-													"    \"alg\": jwtSignAlg,",
-													"    \"typ\": \"JWT\"",
-													"};",
-													"",
-													"var aud = pm.variables.get(\"issuer_uri\")",
-													"",
-													"var jwtPayload = {",
-													"    \"aud\": aud",
-													"};",
-													"",
-													"var signPrivKeyPem = pm.collectionVariables.get(\"obtain_credential_pop_sign_priv_key_es256k\")",
-													"var signPubKeyPem = pm.collectionVariables.get(\"obtain_credential_pop_sign_pub_key_es256k\")",
-													"",
-													"const pubKey = pmlib.rs.KEYUTIL.getKey(signPubKeyPem)",
-													"const privKey = pmlib.rs.KEYUTIL.getKey(signPrivKeyPem)",
-													"",
-													"console.log(\"pub key\" + pubKey)",
-													"// decode PEM to object",
 													"const jwkPub = pmlib.rs.KEYUTIL.getJWK(pubKey);",
 													"",
 													"console.log(jwkPub)",
@@ -5549,7 +5394,7 @@
 		},
 		{
 			"key": "obtain_credential_pop_sign_pub_key_es256k",
-			"value": "-----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAE0d+O4MESirA7qvRKzIQHQ0xjqCOxScK4\niTNqagIpg78S51cKT9xyDwnch6zIpGrKmHRHHQMx3Vn63bSj++K4cA==\n-----END PUBLIC KEY-----\n",
+			"value": "-----BEGIN EC PARAMETERS-----\nBgUrgQQACg==\n-----END EC PARAMETERS-----\n-----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAE0d+O4MESirA7qvRKzIQHQ0xjqCOxScK4\niTNqagIpg78S51cKT9xyDwnch6zIpGrKmHRHHQMx3Vn63bSj++K4cA==\n-----END PUBLIC KEY-----\n",
 			"type": "default"
 		}
 	]
